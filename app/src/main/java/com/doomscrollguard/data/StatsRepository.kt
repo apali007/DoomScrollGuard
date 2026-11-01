@@ -4,6 +4,7 @@ import com.doomscrollguard.data.db.InterventionEntity
 import com.doomscrollguard.data.db.Outcome
 import com.doomscrollguard.data.db.StatsDao
 import com.doomscrollguard.data.db.UsageEntity
+import com.doomscrollguard.engine.Adaptive
 import com.doomscrollguard.engine.InterventionLevel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -24,8 +25,14 @@ data class StatsSummary(
     val days: List<DayTotal>,
     /** First day we have any data for, or null if none yet. */
     val firstDataDay: LocalDate?,
+    /** Pauses/intentions in the last 7 days where the user chose to keep scrolling... */
+    val recentContinued: Int = 0,
+    /** ...out of all pauses/intentions in the last 7 days with a decision. */
+    val recentDecided: Int = 0,
 ) {
     val last7: List<DayTotal> get() = days.takeLast(7)
+
+    val adaptiveFactor: Double get() = Adaptive.factor(recentContinued, recentDecided)
 
     /** Consecutive days (ending today) at or under [goalMs], counting only days since tracking began. */
     fun streakUnder(goalMs: Long): Int {
@@ -89,6 +96,12 @@ class StatsRepository(private val dao: StatsDao) {
             val todayRows = usage.filter { it.day == todayKey }
             val todayInterventions = interventions.filter { it.day == todayKey }
             val firstDay = (usage.map { it.day } + interventions.map { it.day }).minOrNull()
+            val weekStart = today.minusDays(6).toString()
+            val recentDecisions = interventions.filter {
+                it.day >= weekStart &&
+                    it.level != InterventionLevel.NUDGE.name &&
+                    (it.outcome == Outcome.LEFT.name || it.outcome == Outcome.CONTINUED.name)
+            }
 
             return StatsSummary(
                 today = today,
@@ -101,6 +114,8 @@ class StatsRepository(private val dao: StatsDao) {
                 todayLeft = todayInterventions.count { it.outcome == Outcome.LEFT.name },
                 days = days,
                 firstDataDay = firstDay?.let(LocalDate::parse),
+                recentContinued = recentDecisions.count { it.outcome == Outcome.CONTINUED.name },
+                recentDecided = recentDecisions.size,
             )
         }
     }

@@ -17,12 +17,18 @@ data class Thresholds(
     /** Being away from all monitored apps this long ends the session. */
     val sessionResetMs: Long,
 ) {
+    /** Multiplies every trigger by [factor] (< 1 means interventions come sooner). */
+    fun scaled(factor: Double): Thresholds {
+        if (factor == 1.0) return this
+        return copy(
+            nudgeAfterMs = (nudgeAfterMs * factor).toLong(),
+            nudgeAfterGestures = maxOf(1, (nudgeAfterGestures * factor).toInt()),
+            escalationGapMs = (escalationGapMs * factor).toLong(),
+        )
+    }
+
     /** Stricter variant for late at night: everything kicks in twice as fast. */
-    fun bedtime(): Thresholds = copy(
-        nudgeAfterMs = nudgeAfterMs / 2,
-        nudgeAfterGestures = nudgeAfterGestures / 2,
-        escalationGapMs = escalationGapMs / 2,
-    )
+    fun bedtime(): Thresholds = scaled(0.5)
 
     companion object {
         val DEFAULT = Thresholds(

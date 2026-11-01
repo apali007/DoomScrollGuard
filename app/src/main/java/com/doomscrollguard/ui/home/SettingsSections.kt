@@ -133,12 +133,13 @@ fun formatHour(hour: Int): String = when {
 }
 
 @Composable
-fun PreviewSection(onPreview: (InterventionLevel) -> Unit) {
+fun PreviewSection(onPreview: (InterventionLevel) -> Unit, onPreviewMindful: () -> Unit) {
     SectionCard(title = "Preview") {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = { onPreview(InterventionLevel.NUDGE) }) { Text("Nudge") }
             OutlinedButton(onClick = { onPreview(InterventionLevel.PAUSE) }) { Text("Pause") }
             OutlinedButton(onClick = { onPreview(InterventionLevel.INTENTION) }) { Text("Intention") }
         }
+        OutlinedButton(onClick = onPreviewMindful) { Text("Opening question") }
     }
 }

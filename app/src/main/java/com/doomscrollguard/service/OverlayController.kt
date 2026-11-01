@@ -11,8 +11,11 @@ import com.doomscrollguard.data.MonitoredApps
 import com.doomscrollguard.engine.Intervention
 import com.doomscrollguard.engine.InterventionLevel
 import com.doomscrollguard.engine.SessionStats
+import androidx.compose.runtime.Composable
 import com.doomscrollguard.ui.overlay.IntentionScreen
 import com.doomscrollguard.ui.overlay.InterventionCopy
+import com.doomscrollguard.ui.overlay.MindfulChoice
+import com.doomscrollguard.ui.overlay.MindfulOpenScreen
 import com.doomscrollguard.ui.overlay.NudgeCard
 import com.doomscrollguard.ui.overlay.PauseScreen
 import com.doomscrollguard.ui.overlay.formatDuration
@@ -37,7 +40,8 @@ class OverlayController(private val service: AccessibilityService) {
     private class Shown(
         val view: ComposeView,
         val owner: OverlayLifecycleOwner,
-        val level: InterventionLevel,
+        /** Null for the mindful-open prompt, which any intervention may replace. */
+        val level: InterventionLevel?,
     )
 
     private val windowManager = service.getSystemService(WindowManager::class.java)
@@ -58,7 +62,8 @@ class OverlayController(private val service: AccessibilityService) {
     ): Boolean {
         // Never stack overlays; a stronger level replaces a weaker one.
         shown?.let { current ->
-            if (current.level >= intervention.level) return false
+            val currentLevel = current.level
+            if (currentLevel != null && currentLevel >= intervention.level) return false
             dismiss()
         }
 
@@ -69,29 +74,21 @@ class OverlayController(private val service: AccessibilityService) {
             onResult(result)
         }
 
-        val owner = OverlayLifecycleOwner()
-        val view = ComposeView(service)
-        owner.attachTo(view)
-        view.setContent {
-            DoomScrollGuardTheme(darkTheme = true) {
-                when (level) {
-                    InterventionLevel.NUDGE -> NudgeCard(copy, onDismiss = { finish(OverlayResult.Dismissed) })
-                    InterventionLevel.PAUSE -> PauseScreen(
-                        copy = copy,
-                        onLeave = { finish(OverlayResult.Left) },
-                        onContinue = { finish(OverlayResult.Continued()) },
-                    )
-                    InterventionLevel.INTENTION -> IntentionScreen(
-                        copy = copy,
-                        onLeave = { finish(OverlayResult.Left) },
-                        onContinue = { reason -> finish(OverlayResult.Continued(reason)) },
-                    )
-                }
+        addOverlay(level, layoutParamsFor(level)) {
+            when (level) {
+                InterventionLevel.NUDGE -> NudgeCard(copy, onDismiss = { finish(OverlayResult.Dismissed) })
+                InterventionLevel.PAUSE -> PauseScreen(
+                    copy = copy,
+                    onLeave = { finish(OverlayResult.Left) },
+                    onContinue = { finish(OverlayResult.Continued()) },
+                )
+                InterventionLevel.INTENTION -> IntentionScreen(
+                    copy = copy,
+                    onLeave = { finish(OverlayResult.Left) },
+                    onContinue = { reason -> finish(OverlayResult.Continued(reason)) },
+                )
             }
         }
-
-        windowManager.addView(view, layoutParamsFor(level))
-        shown = Shown(view, owner, level)
 
         if (level == InterventionLevel.NUDGE) {
             val r = Runnable { finish(OverlayResult.Dismissed) }
@@ -99,6 +96,33 @@ class OverlayController(private val service: AccessibilityService) {
             handler.postDelayed(r, NUDGE_VISIBLE_MS)
         }
         return true
+    }
+
+    /** Asks why the user is opening [pkg]. Skipped if anything else is on screen. */
+    fun showMindfulOpen(pkg: String, onChoice: (MindfulChoice) -> Unit): Boolean {
+        if (shown != null) return false
+        val label = MonitoredApps.labelFor(pkg, service.packageManager)
+        val params = layoutParamsFor(InterventionLevel.PAUSE) // full screen, not focusable
+        addOverlay(level = null, params = params) {
+            MindfulOpenScreen(label) { choice ->
+                dismiss()
+                onChoice(choice)
+            }
+        }
+        return true
+    }
+
+    private fun addOverlay(
+        level: InterventionLevel?,
+        params: WindowManager.LayoutParams,
+        content: @Composable () -> Unit,
+    ) {
+        val owner = OverlayLifecycleOwner()
+        val view = ComposeView(service)
+        owner.attachTo(view)
+        view.setContent { DoomScrollGuardTheme(darkTheme = true) { content() } }
+        windowManager.addView(view, params)
+        shown = Shown(view, owner, level)
     }
 
     /** Removes whatever is on screen without reporting a result. */

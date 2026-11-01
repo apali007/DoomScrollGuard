@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A phone showing a feed, with a green "pause" badge: the app interrupts the scroll.
+  Everything sits inside the 66dp adaptive-icon safe zone (21..87).
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Phone outline -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M39,26h22a6,6 0,0 1,6 6v44a6,6 0,0 1,-6 6h-22a6,6 0,0 1,-6 -6v-44a6,6 0,0 1,6 -6zM38,32v44a1,1 0,0 0,1 1h22a1,1 0,0 0,1 -1v-44a1,1 0,0 0,-1 -1h-22a1,1 0,0 0,-1 1z" />
+    <!-- Feed rows -->
+    <path
+        android:fillColor="#5B8DEF"
+        android:pathData="M42,36h16v9h-16zM42,49h16v9h-16zM42,62h10v3h-10z" />
+    <!-- Badge cut-out ring in the background colour -->
+    <path
+        android:fillColor="#0E1726"
+        android:pathData="M68,70m-15,0a15,15 0,1 1,30 0a15,15 0,1 1,-30 0" />
+    <!-- Pause badge -->
+    <path
+        android:fillColor="#3DBE8B"
+        android:pathData="M68,70m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M63.5,64h3.5v12h-3.5zM69,64h3.5v12h-3.5z" />
+</vector>

@@ -5,6 +5,7 @@ import com.doomscrollguard.data.SettingsRepository
 import com.doomscrollguard.data.StatsRepository
 import com.doomscrollguard.data.db.StatsDatabase
 import com.doomscrollguard.work.DailyRecapWorker
+import com.doomscrollguard.work.HealthCheckWorker
 
 /** Holds the app-wide singletons shared by the UI and the accessibility service. */
 class DoomScrollApp : Application() {
@@ -14,5 +15,6 @@ class DoomScrollApp : Application() {
     override fun onCreate() {
         super.onCreate()
         DailyRecapWorker.schedule(this)
+        HealthCheckWorker.schedule(this)
     }
 }

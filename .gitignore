@@ -8,3 +8,9 @@
 /captures/
 .externalNativeBuild/
 .cxx/
+
+# Release signing secrets: never commit
+release.jks
+keystore.properties
+*.apk
+*.aab

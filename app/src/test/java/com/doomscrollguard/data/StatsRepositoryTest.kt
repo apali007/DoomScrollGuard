@@ -70,6 +70,25 @@ class StatsRepositoryTest {
     }
 
     @Test
+    fun adaptiveCountsOnlyRecentPauseDecisions() {
+        fun row(back: Long, level: String, outcome: Outcome) =
+            intervention(day(back), outcome).copy(level = level)
+        val interventions = listOf(
+            row(0, "PAUSE", Outcome.CONTINUED),
+            row(1, "INTENTION", Outcome.CONTINUED),
+            row(2, "PAUSE", Outcome.CONTINUED),
+            row(3, "PAUSE", Outcome.LEFT),
+            row(0, "NUDGE", Outcome.IGNORED), // nudges don't count
+            row(0, "PAUSE", Outcome.PENDING), // undecided doesn't count
+            row(10, "PAUSE", Outcome.CONTINUED), // older than a week
+        )
+        val s = StatsRepository.summarize(today, emptyList(), interventions)
+        assertEquals(3, s.recentContinued)
+        assertEquals(4, s.recentDecided)
+        assertEquals(0.75, s.adaptiveFactor, 0.0)
+    }
+
+    @Test
     fun noDataMeansNoStreak() {
         val s = StatsRepository.summarize(today, emptyList(), emptyList())
         assertEquals(0, s.streakUnder(30 * MINUTE))

@@ -41,4 +41,12 @@ class SettingsTest {
         assertEquals(Thresholds.DEFAULT, s.thresholdsAt(12))
         assertEquals(Thresholds.DEMO.bedtime(), s.copy(demoMode = true).thresholdsAt(1))
     }
+
+    @Test
+    fun adaptiveFactorAppliesOnlyWhenEnabled() {
+        val on = Settings(adaptiveEnabled = true)
+        val off = Settings(adaptiveEnabled = false)
+        assertEquals(Thresholds.DEFAULT.scaled(0.5), on.thresholdsAt(12, adaptiveFactor = 0.5))
+        assertEquals(Thresholds.DEFAULT, off.thresholdsAt(12, adaptiveFactor = 0.5))
+    }
 }
