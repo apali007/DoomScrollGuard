@@ -1,0 +1,135 @@
+package com.doomscrollguard.ui.home
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.doomscrollguard.data.Settings
+import com.doomscrollguard.engine.Thresholds
+import com.doomscrollguard.ui.overlay.INTENTION_LOCK_SECONDS
+import com.doomscrollguard.ui.overlay.INTENTION_MIN_WORDS
+import com.doomscrollguard.ui.overlay.PAUSE_LOCK_SECONDS
+import com.doomscrollguard.ui.overlay.formatDuration
+import java.time.LocalTime
+import kotlin.math.roundToInt
+
+/** Which screen the user wants to see from the "How it works" list. */
+enum class HowItWorksPreview { NUDGE, PAUSE, INTENTION, OPENING_QUESTION }
+
+/**
+ * Explains every reminder and exactly when it appears, using the thresholds
+ * that apply right now (bedtime and adaptive timing included).
+ */
+@Composable
+fun HowItWorksSection(
+    settings: Settings,
+    adaptiveFactor: Double,
+    onPreview: (HowItWorksPreview) -> Unit,
+) {
+    val hour = LocalTime.now().hour
+    val now = settings.thresholdsAt(hour, adaptiveFactor)
+    val normal = Thresholds.DEFAULT
+    val nudge = formatDuration(now.nudgeAfterMs)
+    val gap = formatDuration(now.escalationGapMs)
+    val reset = formatDuration(now.sessionResetMs)
+
+    SectionCard(title = "How it works") {
+        Text(
+            "Only time in your watched apps counts. Reminders get stronger the longer you keep scrolling.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        Step(
+            emoji = "⏳",
+            title = "1. Nudge",
+            whenText = "After $nudge of scrolling (or ${now.nudgeAfterGestures} swipes)",
+            body = "A small card at the top shows how long you've been scrolling. It disappears on its own.",
+            onSee = { onPreview(HowItWorksPreview.NUDGE) },
+        )
+        Step(
+            emoji = "🫁",
+            title = "2. Pause",
+            whenText = "$gap after the nudge",
+            body = "A full-screen breathing pause. \"Continue\" unlocks after $PAUSE_LOCK_SECONDS seconds, " +
+                "or tap \"Leave\" to go home.",
+            onSee = { onPreview(HowItWorksPreview.PAUSE) },
+        )
+        Step(
+            emoji = "🧭",
+            title = "3. Intention",
+            whenText = "$gap after the pause, then every $gap",
+            body = "Write at least $INTENTION_MIN_WORDS words about what you're looking for. " +
+                "\"Continue\" unlocks after $INTENTION_LOCK_SECONDS seconds.",
+            onSee = { onPreview(HowItWorksPreview.INTENTION) },
+        )
+        Step(
+            emoji = "👋",
+            title = "Opening question " + if (settings.mindfulOpenEnabled) "(on)" else "(off)",
+            whenText = "When you open a watched app after $reset or more away",
+            body = "Asks what brings you there. \"Just browsing\" makes the first nudge come twice as fast. " +
+                "Turn it on in Smarter reminders.",
+            onSee = { onPreview(HowItWorksPreview.OPENING_QUESTION) },
+        )
+
+        Text(
+            "Leave your watched apps for $reset and everything starts over. Come back sooner and it " +
+                "picks up where it left off. Locking your phone stops the clock.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        val reasons = buildList {
+            if (settings.isBedtime(hour)) add("bedtime mode is on (2× faster)")
+            if (settings.adaptiveEnabled && adaptiveFactor < 1.0) {
+                add("you often keep scrolling after pauses (${((1 - adaptiveFactor) * 100).roundToInt()}% sooner)")
+            }
+        }
+        if (reasons.isNotEmpty() && now != normal) {
+            Text(
+                "⚡ Reminders are coming sooner than usual right now because " +
+                    reasons.joinToString(" and ") + ". Normally the nudge comes after " +
+                    "${formatDuration(normal.nudgeAfterMs)}.",
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Medium,
+            )
+        }
+    }
+}
+
+@Composable
+private fun Step(
+    emoji: String,
+    title: String,
+    whenText: String,
+    body: String,
+    onSee: () -> Unit,
+) {
+    Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
+        Text(emoji, fontSize = 26.sp, modifier = Modifier.padding(top = 2.dp))
+        Column(
+            Modifier
+                .weight(1f)
+                .padding(start = 12.dp),
+        ) {
+            Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(
+                whenText,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Medium,
+            )
+            Text(body, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        TextButton(onClick = onSee) { Text("See it") }
+    }
+}

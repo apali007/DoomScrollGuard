@@ -36,13 +36,13 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.doomscrollguard.DoomScrollApp
 import com.doomscrollguard.data.Settings as AppSettings
 import com.doomscrollguard.data.StatsSummary
-import com.doomscrollguard.engine.InterventionLevel
 import com.doomscrollguard.service.ServiceStatus
 import com.doomscrollguard.ui.home.AppsSection
 import com.doomscrollguard.ui.home.BatteryHelpCard
 import com.doomscrollguard.ui.home.BedtimeSection
 import com.doomscrollguard.ui.home.GoalSection
-import com.doomscrollguard.ui.home.PreviewSection
+import com.doomscrollguard.ui.home.HowItWorksPreview
+import com.doomscrollguard.ui.home.HowItWorksSection
 import com.doomscrollguard.ui.home.RestrictedSettingsHelp
 import com.doomscrollguard.ui.home.SectionCard
 import com.doomscrollguard.ui.home.StatsSection
@@ -81,12 +81,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/** A preview of an overlay screen, shown inside the app. */
-private sealed interface Preview {
-    data class Level(val level: InterventionLevel) : Preview
-    data object MindfulOpen : Preview
-}
-
 @Composable
 private fun HomeScreen(app: DoomScrollApp, settings: AppSettings) {
     val context = LocalContext.current
@@ -108,7 +102,7 @@ private fun HomeScreen(app: DoomScrollApp, settings: AppSettings) {
         ActivityResultContracts.RequestPermission(),
     ) { granted -> canNotify = granted }
 
-    var preview by remember { mutableStateOf<Preview?>(null) }
+    var preview by remember { mutableStateOf<HowItWorksPreview?>(null) }
 
     Column(
         modifier = Modifier
@@ -129,6 +123,12 @@ private fun HomeScreen(app: DoomScrollApp, settings: AppSettings) {
         }
 
         StatsSection(summary, settings.dailyGoalMinutes)
+
+        HowItWorksSection(
+            settings = settings,
+            adaptiveFactor = summary?.adaptiveFactor ?: 1.0,
+            onPreview = { preview = it },
+        )
 
         GoalSection(settings.dailyGoalMinutes) { scope.launch { repo.setDailyGoal(it) } }
 
@@ -172,11 +172,6 @@ private fun HomeScreen(app: DoomScrollApp, settings: AppSettings) {
             }
         }
 
-        PreviewSection(
-            onPreview = { preview = Preview.Level(it) },
-            onPreviewMindful = { preview = Preview.MindfulOpen },
-        )
-
         Text(
             "Privacy: this app only sees which app is open and that you're scrolling. " +
                 "It never reads what's on your screen and has no internet access.",
@@ -198,7 +193,7 @@ private fun adaptiveSubtitle(enabled: Boolean, summary: StatsSummary?): String {
 }
 
 @Composable
-private fun PreviewDialog(preview: Preview, onDismiss: () -> Unit) {
+private fun PreviewDialog(preview: HowItWorksPreview, onDismiss: () -> Unit) {
     val sample = InterventionCopy(
         appLabel = "Instagram",
         duration = "12 min",
@@ -212,22 +207,20 @@ private fun PreviewDialog(preview: Preview, onDismiss: () -> Unit) {
     ) {
         DoomScrollGuardTheme(darkTheme = true) {
             when (preview) {
-                Preview.MindfulOpen -> MindfulOpenScreen("Instagram") { onDismiss() }
-                is Preview.Level -> when (preview.level) {
-                    InterventionLevel.NUDGE -> NudgeCard(sample, onDismiss = onDismiss)
-                    InterventionLevel.PAUSE -> PauseScreen(
-                        copy = sample,
-                        lockSeconds = 3,
-                        onLeave = onDismiss,
-                        onContinue = onDismiss,
-                    )
-                    InterventionLevel.INTENTION -> IntentionScreen(
-                        copy = sample,
-                        lockSeconds = 3,
-                        onLeave = onDismiss,
-                        onContinue = { onDismiss() },
-                    )
-                }
+                HowItWorksPreview.OPENING_QUESTION -> MindfulOpenScreen("Instagram") { onDismiss() }
+                HowItWorksPreview.NUDGE -> NudgeCard(sample, onDismiss = onDismiss)
+                HowItWorksPreview.PAUSE -> PauseScreen(
+                    copy = sample,
+                    lockSeconds = 3,
+                    onLeave = onDismiss,
+                    onContinue = onDismiss,
+                )
+                HowItWorksPreview.INTENTION -> IntentionScreen(
+                    copy = sample,
+                    lockSeconds = 3,
+                    onLeave = onDismiss,
+                    onContinue = { onDismiss() },
+                )
             }
         }
     }

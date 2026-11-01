@@ -41,6 +41,9 @@ import kotlinx.coroutines.delay
 /** Minimum words the user must write before "Continue" unlocks. */
 const val INTENTION_MIN_WORDS = 3
 
+/** How long "Continue" stays locked on the intention screen. */
+const val INTENTION_LOCK_SECONDS = 15
+
 fun wordCount(text: String): Int = text.trim().split(Regex("\\s+")).count { it.isNotEmpty() }
 
 /**
@@ -50,7 +53,7 @@ fun wordCount(text: String): Int = text.trim().split(Regex("\\s+")).count { it.i
 @Composable
 fun IntentionScreen(
     copy: InterventionCopy,
-    lockSeconds: Int = 15,
+    lockSeconds: Int = INTENTION_LOCK_SECONDS,
     onLeave: () -> Unit,
     onContinue: (reason: String) -> Unit,
 ) {

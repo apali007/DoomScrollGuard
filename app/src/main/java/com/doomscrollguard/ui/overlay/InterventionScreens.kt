@@ -51,6 +51,9 @@ import kotlinx.coroutines.delay
 
 private const val BREATH_PHASE_MS = 4_000L
 
+/** How long "Continue" stays locked on the pause screen. */
+const val PAUSE_LOCK_SECONDS = 10
+
 /** Everything an intervention screen needs to display, already formatted. */
 data class InterventionCopy(
     val appLabel: String,
@@ -109,7 +112,7 @@ fun NudgeCard(copy: InterventionCopy, onDismiss: () -> Unit) {
 @Composable
 fun PauseScreen(
     copy: InterventionCopy,
-    lockSeconds: Int = 10,
+    lockSeconds: Int = PAUSE_LOCK_SECONDS,
     onLeave: () -> Unit,
     onContinue: () -> Unit,
 ) {

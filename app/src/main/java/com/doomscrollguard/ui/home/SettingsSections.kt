@@ -1,10 +1,8 @@
 package com.doomscrollguard.ui.home
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -21,11 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.doomscrollguard.data.InstalledApp
 import com.doomscrollguard.data.MonitoredApps
 import com.doomscrollguard.data.Settings
-import com.doomscrollguard.engine.InterventionLevel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -137,16 +133,4 @@ fun formatHour(hour: Int): String = when {
     hour < 12 -> "$hour AM"
     hour == 12 -> "12 PM"
     else -> "${hour - 12} PM"
-}
-
-@Composable
-fun PreviewSection(onPreview: (InterventionLevel) -> Unit, onPreviewMindful: () -> Unit) {
-    SectionCard(title = "Preview") {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = { onPreview(InterventionLevel.NUDGE) }) { Text("Nudge") }
-            OutlinedButton(onClick = { onPreview(InterventionLevel.PAUSE) }) { Text("Pause") }
-            OutlinedButton(onClick = { onPreview(InterventionLevel.INTENTION) }) { Text("Intention") }
-        }
-        OutlinedButton(onClick = onPreviewMindful) { Text("Opening question") }
-    }
 }
