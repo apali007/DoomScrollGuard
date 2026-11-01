@@ -10,18 +10,26 @@ import android.os.SystemClock
 import android.view.accessibility.AccessibilityEvent
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
-import com.doomscrollguard.data.MonitoredApps
-import com.doomscrollguard.data.SettingsRepository
+import com.doomscrollguard.DoomScrollApp
+import com.doomscrollguard.data.Settings
+import com.doomscrollguard.data.StatsRepository
+import com.doomscrollguard.data.db.Outcome
 import com.doomscrollguard.engine.Intervention
+import com.doomscrollguard.engine.InterventionLevel
 import com.doomscrollguard.engine.SessionEngine
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.LocalTime
 
 /**
  * Watches which app is on screen and how much it's being scrolled. It only
@@ -30,13 +38,26 @@ import kotlinx.coroutines.launch
  */
 class DoomScrollService : AccessibilityService() {
 
+    /** An intervention whose outcome we haven't recorded yet. */
+    private class OpenIntervention(
+        val id: Deferred<Long>,
+        val level: InterventionLevel,
+        val shownAt: Long,
+    )
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val engine = SessionEngine()
     private lateinit var overlay: OverlayController
+    private lateinit var stats: StatsRepository
 
-    private var monitored: Set<String> = MonitoredApps.defaultEnabled
+    private var settings = Settings()
     private var ignored: Set<String> = emptySet()
     private var tickJob: Job? = null
+    private var open: OpenIntervention? = null
+
+    // Feed time not yet written to the database.
+    private var usagePkg: String? = null
+    private var usageSince: Long = 0L
 
     private val screenOffReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -46,6 +67,8 @@ class DoomScrollService : AccessibilityService() {
 
     override fun onServiceConnected() {
         overlay = OverlayController(this)
+        val app = application as DoomScrollApp
+        stats = app.stats
         engine.fallbackGesturePx = (resources.displayMetrics.heightPixels * 0.6).toInt()
         ignored = buildIgnoredPackages()
 
@@ -57,11 +80,11 @@ class DoomScrollService : AccessibilityService() {
         )
 
         scope.launch {
-            SettingsRepository(applicationContext).settings.collect { settings ->
-                monitored = settings.monitoredPackages
-                engine.updateThresholds(settings.thresholds)
+            app.settings.settings.collect { newSettings ->
+                settings = newSettings
+                applyThresholds()
                 val fg = engine.foregroundPackage
-                if (fg != null && fg !in monitored) leaveMonitoredApps()
+                if (fg != null && fg !in settings.monitoredPackages) leaveMonitoredApps()
             }
         }
     }
@@ -75,7 +98,7 @@ class DoomScrollService : AccessibilityService() {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> onForegroundChanged(pkg, now)
 
             AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
-                if (pkg !in monitored) return
+                if (pkg !in settings.monitoredPackages) return
                 // A scroll proves the app is on screen, e.g. after unlocking the
                 // phone straight back into a feed without a window change event.
                 if (engine.foregroundPackage != pkg) onForegroundChanged(pkg, now)
@@ -88,36 +111,56 @@ class DoomScrollService : AccessibilityService() {
     override fun onInterrupt() = Unit
 
     override fun onDestroy() {
+        leaveMonitoredApps()
         scope.cancel()
         runCatching { unregisterReceiver(screenOffReceiver) }
-        if (::overlay.isInitialized) overlay.dismiss()
         super.onDestroy()
     }
 
     private fun onForegroundChanged(pkg: String, now: Long) {
         val wasActive = engine.isActive
-        engine.onForeground(pkg, monitored = pkg in monitored, now = now)
+        val previous = engine.foregroundPackage
+        applyThresholds()
+        engine.onForeground(pkg, monitored = pkg in settings.monitoredPackages, now = now)
+        if (engine.foregroundPackage != previous) recordUsage(now, engine.foregroundPackage)
+
         when {
             engine.isActive && !wasActive -> startTicking()
-            !engine.isActive -> {
-                stopTicking()
-                overlay.dismiss()
-            }
+            !engine.isActive && wasActive -> onLeftFeeds(now)
         }
     }
 
     private fun leaveMonitoredApps() {
-        engine.onForeground(null, monitored = false, now = SystemClock.elapsedRealtime())
+        if (!::overlay.isInitialized) return
+        val now = SystemClock.elapsedRealtime()
+        val wasActive = engine.isActive
+        engine.onForeground(null, monitored = false, now = now)
+        recordUsage(now, null)
+        if (wasActive) onLeftFeeds(now)
+    }
+
+    /** The user is no longer in any monitored app. */
+    private fun onLeftFeeds(now: Long) {
         stopTicking()
-        if (::overlay.isInitialized) overlay.dismiss()
+        overlay.dismiss()
+        open?.let { o ->
+            // Leaving soon after a nudge counts as the nudge working.
+            val counted = o.level != InterventionLevel.NUDGE || now - o.shownAt <= NUDGE_LEFT_WINDOW_MS
+            closeOpen(if (counted) Outcome.LEFT else Outcome.IGNORED)
+        }
     }
 
     private fun startTicking() {
         tickJob?.cancel()
         tickJob = scope.launch {
+            var ticks = 0
             while (isActive) {
                 delay(TICK_MS)
-                handle(engine.tick(SystemClock.elapsedRealtime()))
+                val now = SystemClock.elapsedRealtime()
+                applyThresholds()
+                handle(engine.tick(now))
+                expireStaleNudge(now)
+                if (++ticks % FLUSH_EVERY_TICKS == 0) recordUsage(now, engine.foregroundPackage)
             }
         }
     }
@@ -127,10 +170,76 @@ class DoomScrollService : AccessibilityService() {
         tickJob = null
     }
 
+    /** Bedtime depends on the clock, so re-evaluate thresholds as time passes. */
+    private fun applyThresholds() {
+        engine.updateThresholds(settings.thresholdsAt(LocalTime.now().hour))
+    }
+
     private fun handle(intervention: Intervention?) {
         intervention ?: return
-        overlay.show(intervention, onLeave = { performGlobalAction(GLOBAL_ACTION_HOME) })
+        scope.launch {
+            val todayMs = runCatching { stats.summaryOnce().todayMs }.getOrNull()
+                ?.plus(unflushedUsageMs(SystemClock.elapsedRealtime()))
+            if (!engine.isActive) return@launch // left while we were loading stats
+
+            val shown = overlay.show(intervention, todayMs, ::onOverlayResult)
+            if (!shown) return@launch
+            closeOpen(Outcome.IGNORED) // a new intervention supersedes the previous one
+            val pkg = intervention.stats.currentPackage
+            open = OpenIntervention(
+                id = scope.async { stats.logIntervention(pkg, intervention.level) },
+                level = intervention.level,
+                shownAt = SystemClock.elapsedRealtime(),
+            )
+        }
     }
+
+    private fun onOverlayResult(result: OverlayResult) {
+        when (result) {
+            OverlayResult.Left -> {
+                closeOpen(Outcome.LEFT)
+                performGlobalAction(GLOBAL_ACTION_HOME)
+            }
+            is OverlayResult.Continued -> closeOpen(Outcome.CONTINUED, result.reason)
+            // A dismissed nudge stays open: leaving within a minute still counts.
+            OverlayResult.Dismissed -> Unit
+        }
+    }
+
+    private fun expireStaleNudge(now: Long) {
+        val o = open ?: return
+        if (o.level == InterventionLevel.NUDGE &&
+            overlay.showingLevel == null &&
+            now - o.shownAt > NUDGE_LEFT_WINDOW_MS
+        ) {
+            closeOpen(Outcome.IGNORED)
+        }
+    }
+
+    private fun closeOpen(outcome: Outcome, reason: String? = null) {
+        val o = open ?: return
+        open = null
+        scope.launch {
+            withContext(NonCancellable) {
+                runCatching { stats.setOutcome(o.id.await(), outcome, reason) }
+            }
+        }
+    }
+
+    /** Writes feed time accumulated for the current app, then starts tracking [nextPkg]. */
+    private fun recordUsage(now: Long, nextPkg: String?) {
+        val pkg = usagePkg
+        val ms = unflushedUsageMs(now)
+        if (pkg != null && ms > 0) {
+            scope.launch {
+                withContext(NonCancellable) { runCatching { stats.addUsage(pkg, ms) } }
+            }
+        }
+        usagePkg = nextPkg
+        usageSince = now
+    }
+
+    private fun unflushedUsageMs(now: Long): Long = if (usagePkg != null) now - usageSince else 0L
 
     /** Windows that appear over a feed without meaning the user left it. */
     private fun buildIgnoredPackages(): Set<String> {
@@ -143,5 +252,8 @@ class DoomScrollService : AccessibilityService() {
 
     private companion object {
         const val TICK_MS = 1_000L
+        const val FLUSH_EVERY_TICKS = 60
+        /** Leaving within this long after a nudge counts as "left". */
+        const val NUDGE_LEFT_WINDOW_MS = 60_000L
     }
 }

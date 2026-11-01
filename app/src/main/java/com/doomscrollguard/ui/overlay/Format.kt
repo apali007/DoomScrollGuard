@@ -4,7 +4,13 @@ import com.doomscrollguard.engine.MINUTE
 import com.doomscrollguard.engine.SECOND
 import java.util.Locale
 
+private const val HOUR = 60 * MINUTE
+
 fun formatDuration(ms: Long): String = when {
+    ms >= HOUR -> {
+        val minutes = (ms % HOUR) / MINUTE
+        if (minutes == 0L) "${ms / HOUR} h" else "${ms / HOUR} h ${minutes} min"
+    }
     ms >= MINUTE -> "${ms / MINUTE} min"
     else -> "${ms / SECOND} sec"
 }

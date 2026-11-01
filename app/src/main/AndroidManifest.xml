@@ -2,19 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Intentionally NO internet permission: nothing ever leaves the phone. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Lets the app picker list launchable apps so the user can choose which to watch. -->
     <queries>
-        <package android:name="com.instagram.android" />
-        <package android:name="com.google.android.youtube" />
-        <package android:name="com.facebook.katana" />
-        <package android:name="com.zhiliaoapp.musically" />
-        <package android:name="com.ss.android.ugc.trill" />
-        <package android:name="com.twitter.android" />
-        <package android:name="com.reddit.frontpage" />
-        <package android:name="com.snapchat.android" />
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
     </queries>
 
     <application
+        android:name=".DoomScrollApp"
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"

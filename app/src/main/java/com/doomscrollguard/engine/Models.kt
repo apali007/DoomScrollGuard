@@ -1,7 +1,7 @@
 package com.doomscrollguard.engine
 
 /** How hard an intervention pushes back. Higher levels are harder to dismiss. */
-enum class InterventionLevel { NUDGE, PAUSE }
+enum class InterventionLevel { NUDGE, PAUSE, INTENTION }
 
 /**
  * Tunable rules for when to intervene. All durations are in milliseconds of
@@ -17,6 +17,13 @@ data class Thresholds(
     /** Being away from all monitored apps this long ends the session. */
     val sessionResetMs: Long,
 ) {
+    /** Stricter variant for late at night: everything kicks in twice as fast. */
+    fun bedtime(): Thresholds = copy(
+        nudgeAfterMs = nudgeAfterMs / 2,
+        nudgeAfterGestures = nudgeAfterGestures / 2,
+        escalationGapMs = escalationGapMs / 2,
+    )
+
     companion object {
         val DEFAULT = Thresholds(
             nudgeAfterMs = 10 * MINUTE,

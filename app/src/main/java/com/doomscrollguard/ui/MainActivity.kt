@@ -1,5 +1,6 @@
 package com.doomscrollguard.ui
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -8,11 +9,12 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,11 +25,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -37,7 +36,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -45,27 +43,36 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import com.doomscrollguard.data.MonitoredApps
+import com.doomscrollguard.DoomScrollApp
 import com.doomscrollguard.data.Settings as AppSettings
-import com.doomscrollguard.data.SettingsRepository
+import com.doomscrollguard.data.StatsSummary
 import com.doomscrollguard.engine.InterventionLevel
 import com.doomscrollguard.service.DoomScrollService
+import com.doomscrollguard.ui.home.AppsSection
+import com.doomscrollguard.ui.home.BedtimeSection
+import com.doomscrollguard.ui.home.GoalSection
+import com.doomscrollguard.ui.home.PreviewSection
+import com.doomscrollguard.ui.home.SectionCard
+import com.doomscrollguard.ui.home.StatsSection
+import com.doomscrollguard.ui.home.ToggleRow
+import com.doomscrollguard.ui.overlay.IntentionScreen
 import com.doomscrollguard.ui.overlay.InterventionCopy
 import com.doomscrollguard.ui.overlay.NudgeCard
 import com.doomscrollguard.ui.overlay.PauseScreen
 import com.doomscrollguard.ui.theme.DoomScrollGuardTheme
 import com.doomscrollguard.ui.theme.Leaf
+import com.doomscrollguard.work.DailyRecapWorker
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val repo = SettingsRepository(applicationContext)
+        val app = application as DoomScrollApp
         setContent {
             DoomScrollGuardTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    HomeScreen(repo)
+                    HomeScreen(app)
                 }
             }
         }
@@ -73,16 +80,24 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun HomeScreen(repo: SettingsRepository) {
+private fun HomeScreen(app: DoomScrollApp) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val repo = app.settings
     val settings by repo.settings.collectAsState(initial = AppSettings())
+    val summaryFlow = remember { app.stats.summary() }
+    val summary by summaryFlow.collectAsState(initial = null as StatsSummary?)
 
     var serviceEnabled by remember { mutableStateOf(isServiceEnabled(context)) }
+    var canNotify by remember { mutableStateOf(DailyRecapWorker.canNotify(context)) }
     LifecycleResumeEffect(Unit) {
         serviceEnabled = isServiceEnabled(context)
+        canNotify = DailyRecapWorker.canNotify(context)
         onPauseOrDispose { }
     }
+    val notificationPermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted -> canNotify = granted }
 
     var showDisclosure by remember { mutableStateOf(false) }
     var preview by remember { mutableStateOf<InterventionLevel?>(null) }
@@ -108,40 +123,51 @@ private fun HomeScreen(repo: SettingsRepository) {
                 if (settings.disclosureAccepted) openAccessibilitySettings(context) else showDisclosure = true
             },
         )
-
         if (!serviceEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             RestrictedSettingsHelp(onOpenAppInfo = { openAppInfo(context) })
         }
 
-        SectionCard(title = "Apps to watch") {
-            MonitoredApps.known.distinctBy { it.label }.forEach { app ->
-                val pkgs = MonitoredApps.known.filter { it.label == app.label }.map { it.packageName }
-                val checked = pkgs.any { it in settings.monitoredPackages }
-                ToggleRow(label = app.label, checked = checked) { on ->
-                    scope.launch { pkgs.forEach { repo.setMonitored(it, on) } }
+        StatsSection(summary, settings.dailyGoalMinutes)
+
+        GoalSection(settings.dailyGoalMinutes) { scope.launch { repo.setDailyGoal(it) } }
+
+        AppsSection(settings.monitoredPackages) { pkgs, on ->
+            scope.launch { pkgs.forEach { repo.setMonitored(it, on) } }
+        }
+
+        BedtimeSection(
+            settings = settings,
+            onEnabledChange = { scope.launch { repo.setBedtimeEnabled(it) } },
+            onHoursChange = { start, end -> scope.launch { repo.setBedtimeHours(start, end) } },
+        )
+
+        SectionCard(title = "Daily recap") {
+            ToggleRow(
+                label = "Evening summary at 9 PM",
+                checked = settings.recapEnabled,
+            ) { on ->
+                scope.launch { repo.setRecapEnabled(on) }
+                if (on && !canNotify && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+            if (settings.recapEnabled && !canNotify && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                TextButton(onClick = { notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS) }) {
+                    Text("Allow notifications")
                 }
             }
         }
 
         SectionCard(title = "Demo mode") {
             ToggleRow(
-                label = "Trigger fast (nudge after 30 sec or 8 swipes)",
+                label = "Trigger fast",
+                subtitle = if (settings.demoMode) "Nudge after 30 sec or 8 swipes, then escalate every 20 sec."
+                else "Normal: nudge after 10 min or 150 swipes, then escalate every 5 min.",
                 checked = settings.demoMode,
             ) { on -> scope.launch { repo.setDemoMode(on) } }
-            Text(
-                if (settings.demoMode) "Escalates to a full pause 20 sec after the nudge."
-                else "Normal: nudge after 10 min or 150 swipes, then a full pause every 5 min.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
         }
 
-        SectionCard(title = "Preview") {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = { preview = InterventionLevel.NUDGE }) { Text("Nudge") }
-                OutlinedButton(onClick = { preview = InterventionLevel.PAUSE }) { Text("Pause screen") }
-            }
-        }
+        PreviewSection { preview = it }
 
         Text(
             "Privacy: this app only sees which app is open and that you're scrolling. " +
@@ -208,28 +234,6 @@ private fun RestrictedSettingsHelp(onOpenAppInfo: () -> Unit) {
 }
 
 @Composable
-private fun SectionCard(title: String, content: @Composable () -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            HorizontalDivider()
-            content()
-        }
-    }
-}
-
-@Composable
-private fun ToggleRow(label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(label, modifier = Modifier.weight(1f))
-        Switch(checked = checked, onCheckedChange = onChange)
-    }
-}
-
-@Composable
 private fun DisclosureDialog(onAccept: () -> Unit, onDecline: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDecline,
@@ -251,7 +255,13 @@ private fun DisclosureDialog(onAccept: () -> Unit, onDecline: () -> Unit) {
 
 @Composable
 private fun PreviewDialog(level: InterventionLevel, onDismiss: () -> Unit) {
-    val sample = InterventionCopy(appLabel = "Instagram", duration = "12 min", gestures = 184, distance = "14 m")
+    val sample = InterventionCopy(
+        appLabel = "Instagram",
+        duration = "12 min",
+        gestures = 184,
+        distance = "14 m",
+        todayTotal = "1 h 5 min",
+    )
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -264,6 +274,12 @@ private fun PreviewDialog(level: InterventionLevel, onDismiss: () -> Unit) {
                     lockSeconds = 3,
                     onLeave = onDismiss,
                     onContinue = onDismiss,
+                )
+                InterventionLevel.INTENTION -> IntentionScreen(
+                    copy = sample,
+                    lockSeconds = 3,
+                    onLeave = onDismiss,
+                    onContinue = { onDismiss() },
                 )
             }
         }

@@ -57,6 +57,8 @@ data class InterventionCopy(
     val duration: String,
     val gestures: Int,
     val distance: String,
+    /** Total feed time today across all apps, if known. */
+    val todayTotal: String? = null,
 )
 
 /** Level 1: a gentle card at the top of the screen. The app stays usable underneath. */
@@ -196,6 +198,9 @@ fun PauseScreen(
                 color = Color.White.copy(alpha = 0.7f),
                 fontSize = 15.sp,
             )
+            copy.todayTotal?.let {
+                Text("Today so far: $it", color = Color.White.copy(alpha = 0.7f), fontSize = 15.sp)
+            }
             Spacer(Modifier.height(24.dp))
             Text(
                 "Is this how you want to spend your time right now?",

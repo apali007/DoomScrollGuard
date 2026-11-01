@@ -13,12 +13,16 @@ val Leaf = Color(0xFF3DBE8B)
 
 private val LightColors = lightColorScheme(
     primary = Calm,
+    onPrimary = Color.White,
     secondary = Leaf,
+    onSecondary = Color.White,
 )
 
 private val DarkColors = darkColorScheme(
     primary = Calm,
+    onPrimary = Color.White,
     secondary = Leaf,
+    onSecondary = Color.White,
     background = CalmDeep,
     surface = Color(0xFF162236),
 )

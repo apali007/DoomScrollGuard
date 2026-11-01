@@ -66,13 +66,22 @@ class SessionEngineTest {
     }
 
     @Test
-    fun escalatesToPauseThenRepeatsPause() {
+    fun escalatesNudgePauseIntentionThenRepeatsIntention() {
         val e = engine()
         e.onForeground(insta, monitored = true, now = 0)
         assertEquals(InterventionLevel.NUDGE, e.tick(now = 10 * MINUTE)?.level)
         assertEquals(InterventionLevel.PAUSE, e.tick(now = 15 * MINUTE)?.level)
         assertNull(e.tick(now = 19 * MINUTE))
-        assertEquals(InterventionLevel.PAUSE, e.tick(now = 20 * MINUTE)?.level)
+        assertEquals(InterventionLevel.INTENTION, e.tick(now = 20 * MINUTE)?.level)
+        assertEquals(InterventionLevel.INTENTION, e.tick(now = 25 * MINUTE)?.level)
+    }
+
+    @Test
+    fun bedtimeHalvesThresholds() {
+        val e = SessionEngine(thresholds.bedtime())
+        e.onForeground(insta, monitored = true, now = 0)
+        assertEquals(InterventionLevel.NUDGE, e.tick(now = 5 * MINUTE)?.level)
+        assertEquals(InterventionLevel.PAUSE, e.tick(now = 7 * MINUTE + 30 * SECOND)?.level)
     }
 
     @Test
