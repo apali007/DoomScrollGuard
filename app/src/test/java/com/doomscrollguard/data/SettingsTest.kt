@@ -38,9 +38,7 @@ class SettingsTest {
     fun bedtimeUsesStricterThresholds() {
         val s = Settings(bedtimeEnabled = true, bedtimeStartHour = 23, bedtimeEndHour = 6)
         assertEquals(Thresholds.DEFAULT.bedtime(), s.thresholdsAt(1))
-        assertEquals(Thresholds.DEFAULT, s.thresholdsAt(12))
-        assertEquals(Thresholds.DEMO.bedtime(), s.copy(demoMode = true).thresholdsAt(1))
-    }
+        assertEquals(Thresholds.DEFAULT, s.thresholdsAt(12))    }
 
     @Test
     fun adaptiveFactorAppliesOnlyWhenEnabled() {

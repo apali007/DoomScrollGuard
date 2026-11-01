@@ -172,15 +172,6 @@ private fun HomeScreen(app: DoomScrollApp, settings: AppSettings) {
             }
         }
 
-        SectionCard(title = "Demo mode") {
-            ToggleRow(
-                label = "Trigger fast",
-                subtitle = if (settings.demoMode) "Nudge after 30 sec or 8 swipes, then escalate every 20 sec."
-                else "Normal: nudge after 10 min or 150 swipes, then escalate every 5 min.",
-                checked = settings.demoMode,
-            ) { on -> scope.launch { repo.setDemoMode(on) } }
-        }
-
         PreviewSection(
             onPreview = { preview = Preview.Level(it) },
             onPreviewMindful = { preview = Preview.MindfulOpen },

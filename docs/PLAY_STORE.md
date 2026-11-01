@@ -69,9 +69,10 @@ Upload file: `app/build/outputs/bundle/release/app-release.aab` (build with `./g
 **Ads:** No ads.
 
 **App access:** All functionality available without login. Tell reviewers:
-> No login required. To test: complete onboarding, enable DoomScroll Guard in Settings →
-> Accessibility, turn on "Demo mode" on the home screen, then open YouTube and scroll. A nudge
-> appears after ~30 s, a pause ~20 s later, then the intention screen.
+> No login required. To test: complete onboarding and enable DoomScroll Guard in Settings →
+> Accessibility. Every reminder screen can be seen instantly via the "Preview" buttons on the
+> home screen. For the live flow, open YouTube and keep scrolling: a nudge appears after
+> 150 swipes or 10 minutes, a full-screen pause 5 minutes later, then the intention screen.
 
 **Content rating:** Complete the questionnaire. No violence, user content, gambling, etc.
 Expected rating: Everyone.
@@ -101,7 +102,8 @@ Expected rating: Everyone.
 > disclosure and must tap "I agree" during onboarding before being sent to enable the service.
 - **Video:** Play requires a short video showing the disclosure and the feature. Record the
   phone screen (Quick Settings → Screen record): onboarding privacy step → "I agree" → enabling
-  the service → Demo mode → scrolling YouTube → nudge → pause → intention. Upload to YouTube as
+  the service → scrolling YouTube until the nudge appears → Preview buttons for the pause and
+  intention screens (or keep scrolling and trim the video). Upload to YouTube as
   unlisted and paste the link.
 
 **Health apps declaration** (if asked because of the Health & Fitness category): not a medical

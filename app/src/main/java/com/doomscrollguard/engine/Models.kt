@@ -37,14 +37,6 @@ data class Thresholds(
             escalationGapMs = 5 * MINUTE,
             sessionResetMs = 2 * MINUTE,
         )
-
-        /** Very low thresholds so the whole flow can be demoed in under a minute. */
-        val DEMO = Thresholds(
-            nudgeAfterMs = 30 * SECOND,
-            nudgeAfterGestures = 8,
-            escalationGapMs = 20 * SECOND,
-            sessionResetMs = 15 * SECOND,
-        )
     }
 }
 

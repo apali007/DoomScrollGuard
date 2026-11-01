@@ -17,7 +17,7 @@ for a week.
 >    go back, tap **Open app info → ⋮ (top right) → Allow restricted settings**, then try again.
 > 4. Samsung / Xiaomi / OnePlus etc.: follow the "Keep protection running" card so your phone
 >    doesn't switch it off.
-> 5. Use your phone normally for a week. Keep Demo mode **off**.
+> 5. Use your phone normally for a week.
 
 ## Option B: Play Store internal / closed testing
 See `PLAY_STORE.md`. Testers install from a Play link, with no "unknown sources" or

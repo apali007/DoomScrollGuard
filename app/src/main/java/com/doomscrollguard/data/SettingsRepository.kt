@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 data class Settings(
-    val demoMode: Boolean = false,
     val monitoredPackages: Set<String> = MonitoredApps.defaultEnabled,
     val disclosureAccepted: Boolean = false,
     val dailyGoalMinutes: Int = 30,
@@ -41,7 +40,7 @@ data class Settings(
 
     /** [adaptiveFactor] comes from [com.doomscrollguard.engine.Adaptive]; ignored if adaptation is off. */
     fun thresholdsAt(hour: Int, adaptiveFactor: Double = 1.0): Thresholds {
-        val base = if (demoMode) Thresholds.DEMO else Thresholds.DEFAULT
+        val base = Thresholds.DEFAULT
         val timed = if (isBedtime(hour)) base.bedtime() else base
         return if (adaptiveEnabled) timed.scaled(adaptiveFactor) else timed
     }
@@ -54,7 +53,6 @@ class SettingsRepository(private val context: Context) {
     val settings: Flow<Settings> = context.dataStore.data.map { prefs ->
         val defaults = Settings()
         Settings(
-            demoMode = prefs[DEMO_MODE] ?: defaults.demoMode,
             monitoredPackages = prefs[MONITORED] ?: defaults.monitoredPackages,
             disclosureAccepted = prefs[DISCLOSURE_ACCEPTED] ?: defaults.disclosureAccepted,
             dailyGoalMinutes = prefs[DAILY_GOAL] ?: defaults.dailyGoalMinutes,
@@ -70,8 +68,6 @@ class SettingsRepository(private val context: Context) {
             lastOffWarningEpochMs = prefs[LAST_OFF_WARNING] ?: defaults.lastOffWarningEpochMs,
         )
     }
-
-    suspend fun setDemoMode(enabled: Boolean) = edit { it[DEMO_MODE] = enabled }
 
     suspend fun setMonitored(packageName: String, enabled: Boolean) = edit { prefs ->
         val current = prefs[MONITORED] ?: MonitoredApps.defaultEnabled
@@ -109,7 +105,6 @@ class SettingsRepository(private val context: Context) {
     }
 
     private companion object {
-        val DEMO_MODE = booleanPreferencesKey("demo_mode")
         val MONITORED = stringSetPreferencesKey("monitored_packages")
         val DISCLOSURE_ACCEPTED = booleanPreferencesKey("disclosure_accepted")
         val DAILY_GOAL = intPreferencesKey("daily_goal_minutes")

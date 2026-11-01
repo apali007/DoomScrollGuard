@@ -166,7 +166,8 @@ class SessionEngineTest {
     fun thresholdsCanBeSwappedLive() {
         val e = engine()
         e.onForeground(insta, monitored = true, now = 0)
-        e.updateThresholds(Thresholds.DEMO)
-        assertTrue(e.tick(now = 30 * SECOND)?.level == InterventionLevel.NUDGE)
+        assertNull(e.tick(now = 5 * MINUTE))
+        e.updateThresholds(thresholds.bedtime()) // e.g. bedtime starts mid-session
+        assertTrue(e.tick(now = 5 * MINUTE + SECOND)?.level == InterventionLevel.NUDGE)
     }
 }
