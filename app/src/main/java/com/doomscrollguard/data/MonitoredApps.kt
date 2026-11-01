@@ -3,7 +3,7 @@ package com.doomscrollguard.data
 import android.content.Intent
 import android.content.pm.PackageManager
 
-/** Feed apps we suggest by default. Any other installed app can be added from settings. */
+/** Common feed apps, listed first in the picker if installed. Nothing is watched by default. */
 data class KnownApp(val packageName: String, val label: String)
 
 /** A launchable app installed on the phone. */
@@ -23,7 +23,7 @@ object MonitoredApps {
         KnownApp("com.snapchat.android", "Snapchat"),
     )
 
-    val defaultEnabled: Set<String> = known.map { it.packageName }.toSet()
+    val knownPackages: Set<String> = known.map { it.packageName }.toSet()
 
     /** Human-readable name for any package, preferring our known labels. */
     fun labelFor(packageName: String, pm: PackageManager? = null): String {

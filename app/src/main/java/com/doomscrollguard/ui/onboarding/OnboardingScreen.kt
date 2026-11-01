@@ -157,6 +157,12 @@ fun OnboardingScreen(settings: Settings, repo: SettingsRepository) {
                         next()
                     },
                 ) { Text("I agree") }
+                Step.APPS ->
+                    if (settings.monitoredPackages.isNotEmpty()) {
+                        Button(onClick = ::next) { Text("Next") }
+                    } else {
+                        TextButton(onClick = ::next) { Text("Skip for now") }
+                    }
                 Step.ENABLE ->
                     if (serviceEnabled) {
                         Button(onClick = ::next) { Text("Next") }

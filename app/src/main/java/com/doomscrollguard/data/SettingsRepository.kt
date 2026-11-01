@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 data class Settings(
-    val monitoredPackages: Set<String> = MonitoredApps.defaultEnabled,
+    val monitoredPackages: Set<String> = emptySet(),
     val disclosureAccepted: Boolean = false,
     val dailyGoalMinutes: Int = 30,
     val bedtimeEnabled: Boolean = false,
@@ -70,8 +70,27 @@ class SettingsRepository(private val context: Context) {
     }
 
     suspend fun setMonitored(packageName: String, enabled: Boolean) = edit { prefs ->
-        val current = prefs[MONITORED] ?: MonitoredApps.defaultEnabled
+        val current = prefs[MONITORED] ?: emptySet()
         prefs[MONITORED] = if (enabled) current + packageName else current - packageName
+    }
+
+    /**
+     * One-time migration from when Instagram/YouTube/Facebook etc. were watched by
+     * default: keep only those defaults that are actually installed, so a feed app
+     * installed later isn't silently watched. Choices the user made are kept.
+     */
+    suspend fun migrateOldDefaults(installed: Set<String>) = edit { prefs ->
+        if (prefs[DEFAULTS_MIGRATED] == true) return@edit
+        prefs[DEFAULTS_MIGRATED] = true
+        val stored = prefs[MONITORED]
+        val onboarded = prefs[ONBOARDING_DONE] ?: prefs[DISCLOSURE_ACCEPTED] ?: false
+        when {
+            stored != null -> prefs[MONITORED] = stored.filter {
+                it !in MonitoredApps.knownPackages || it in installed
+            }.toSet()
+            // Never touched the list: they were relying on the old implicit defaults.
+            onboarded -> prefs[MONITORED] = MonitoredApps.knownPackages intersect installed
+        }
     }
 
     suspend fun acceptDisclosure() = edit { it[DISCLOSURE_ACCEPTED] = true }
@@ -117,5 +136,6 @@ class SettingsRepository(private val context: Context) {
         val ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
         val SERVICE_WAS_ENABLED = booleanPreferencesKey("service_was_enabled")
         val LAST_OFF_WARNING = longPreferencesKey("last_off_warning_epoch_ms")
+        val DEFAULTS_MIGRATED = booleanPreferencesKey("defaults_migrated")
     }
 }

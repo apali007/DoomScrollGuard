@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -52,7 +53,8 @@ fun AppsSection(monitored: Set<String>, onToggle: (packages: List<String>, enabl
             MonitoredApps.installedLaunchable(context.packageManager, context.packageName)
         }
     }
-    var showOthers by rememberSaveable { mutableStateOf(false) }
+    var showPicker by rememberSaveable { mutableStateOf(false) }
+    var query by rememberSaveable { mutableStateOf("") }
 
     SectionCard(title = "Apps to watch") {
         val apps = installed
@@ -60,37 +62,42 @@ fun AppsSection(monitored: Set<String>, onToggle: (packages: List<String>, enabl
             Text("Loading apps…")
             return@SectionCard
         }
-        val installedPkgs = apps.map { it.packageName }.toSet()
-        val suggested = MonitoredApps.known
-            .filter { it.packageName in installedPkgs }
-            .groupBy { it.label }
 
-        if (suggested.isEmpty()) {
+        // Only what the user turned on, so the list stays short and personal.
+        val watching = apps.filter { it.packageName in monitored }
+        if (watching.isEmpty()) {
             Text(
-                "None of the usual feed apps are installed. Pick yours below.",
-                style = MaterialTheme.typography.bodySmall,
+                "No apps yet. Add the apps where you lose track of time.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
             )
         }
-        suggested.forEach { (label, known) ->
-            val pkgs = known.map { it.packageName }
-            ToggleRow(label = label, checked = pkgs.any { it in monitored }) { on -> onToggle(pkgs, on) }
+        watching.forEach { app ->
+            ToggleRow(label = app.label, checked = true) { on -> onToggle(listOf(app.packageName), on) }
         }
 
-        val knownPkgs = MonitoredApps.known.map { it.packageName }.toSet()
-        val others = apps.filter { it.packageName !in knownPkgs }
-        val othersOn = others.count { it.packageName in monitored }
-        TextButton(onClick = { showOthers = !showOthers }) {
-            Text(
-                (if (showOthers) "Hide other apps" else "Add other apps") +
-                    if (othersOn > 0) " ($othersOn on)" else "",
-            )
+        TextButton(onClick = { showPicker = !showPicker }) {
+            Text(if (showPicker) "Done" else "+ Add apps")
         }
-        if (showOthers) {
-            others.forEach { app ->
-                ToggleRow(label = app.label, checked = app.packageName in monitored) { on ->
-                    onToggle(listOf(app.packageName), on)
+        if (showPicker) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Search apps") },
+                singleLine = true,
+            )
+            val knownPkgs = MonitoredApps.known.map { it.packageName }.toSet()
+            apps
+                .filter { it.packageName !in monitored }
+                .filter { query.isBlank() || it.label.contains(query.trim(), ignoreCase = true) }
+                // Common feed apps first (if installed), then everything else alphabetically.
+                .sortedBy { if (it.packageName in knownPkgs) 0 else 1 }
+                .forEach { app ->
+                    ToggleRow(label = app.label, checked = false) { on ->
+                        onToggle(listOf(app.packageName), on)
+                    }
                 }
-            }
         }
     }
 }
