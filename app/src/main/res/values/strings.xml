@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">DoomScroll Guard</string>
+    <string name="a11y_description">Notices when you\'ve been scrolling feed apps for too long and shows a gentle reminder to take a break. It only sees which app is open and that you\'re scrolling — it never reads what\'s on your screen and has no internet access.</string>
+</resources>
