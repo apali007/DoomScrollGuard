@@ -93,7 +93,12 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    suspend fun acceptDisclosure() = edit { it[DISCLOSURE_ACCEPTED] = true }
+    suspend fun acceptDisclosure() = edit { prefs ->
+        prefs[DISCLOSURE_ACCEPTED] = true
+        // Accepting mid-onboarding must not count as "onboarding done" via the
+        // legacy fallback below, so record explicitly that it isn't finished yet.
+        if (prefs[ONBOARDING_DONE] == null) prefs[ONBOARDING_DONE] = false
+    }
 
     suspend fun setDailyGoal(minutes: Int) = edit { it[DAILY_GOAL] = minutes }
 
