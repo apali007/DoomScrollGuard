@@ -18,7 +18,6 @@ import com.doomscrollguard.engine.BreakTimer
 import com.doomscrollguard.engine.Intervention
 import com.doomscrollguard.engine.InterventionLevel
 import com.doomscrollguard.engine.SessionEngine
-import com.doomscrollguard.ui.overlay.MindfulChoice
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +30,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.LocalTime
 
 /**
  * Watches which app is on screen and how much it's being scrolled. It only
@@ -55,8 +53,6 @@ class DoomScrollService : AccessibilityService() {
     private lateinit var stats: StatsRepository
 
     private var settings = Settings()
-    /** From recent pause/intention outcomes; refreshed at the start of each session. */
-    private var adaptiveFactor = 1.0
     private var ignored: Set<String> = emptySet()
     private var tickJob: Job? = null
     private var open: OpenIntervention? = null
@@ -86,12 +82,11 @@ class DoomScrollService : AccessibilityService() {
         )
 
         scope.launch { app.settings.markServiceRan() }
-        refreshAdaptiveFactor()
         scope.launch {
             app.settings.settings.collect { newSettings ->
                 settings = newSettings
                 overlay.strictness = newSettings.strictness
-                applyThresholds()
+                engine.updateThresholds(newSettings.thresholds)
                 val fg = engine.foregroundPackage
                 if (fg != null && fg !in settings.monitoredPackages) leaveMonitoredApps()
             }
@@ -137,8 +132,6 @@ class DoomScrollService : AccessibilityService() {
 
         val wasActive = engine.isActive
         val previous = engine.foregroundPackage
-        val sessionsBefore = engine.sessionCount
-        applyThresholds()
         engine.onForeground(pkg, monitored = monitored, now = now)
         if (engine.foregroundPackage != previous) recordUsage(now, engine.foregroundPackage)
 
@@ -146,7 +139,6 @@ class DoomScrollService : AccessibilityService() {
             engine.isActive && !wasActive -> startTicking()
             !engine.isActive && wasActive -> onLeftFeeds(now)
         }
-        if (engine.sessionCount != sessionsBefore) onNewSession(pkg)
     }
 
     /**
@@ -170,26 +162,6 @@ class DoomScrollService : AccessibilityService() {
 
     private fun startBreak() {
         breakTimer.start(SystemClock.elapsedRealtime(), settings.strictness.breakMs)
-    }
-
-    /** A fresh visit to a watched app (not a quick return to an ongoing session). */
-    private fun onNewSession(pkg: String) {
-        refreshAdaptiveFactor()
-        if (!settings.mindfulOpenEnabled) return
-        overlay.showMindfulOpen(pkg) { choice ->
-            when (choice) {
-                MindfulChoice.PURPOSE -> Unit
-                MindfulChoice.BROWSING -> engine.scaleCurrentSessionNudge(JUST_BROWSING_NUDGE_SCALE)
-                MindfulChoice.NEVER_MIND -> performGlobalAction(GLOBAL_ACTION_HOME)
-            }
-        }
-    }
-
-    private fun refreshAdaptiveFactor() {
-        scope.launch {
-            adaptiveFactor = runCatching { stats.summaryOnce().adaptiveFactor }.getOrDefault(1.0)
-            applyThresholds()
-        }
     }
 
     private fun leaveMonitoredApps() {
@@ -227,7 +199,6 @@ class DoomScrollService : AccessibilityService() {
             while (isActive) {
                 delay(TICK_MS)
                 val now = SystemClock.elapsedRealtime()
-                applyThresholds()
                 handle(engine.tick(now))
                 expireStaleNudge(now)
                 if (++ticks % FLUSH_EVERY_TICKS == 0) recordUsage(now, engine.foregroundPackage)
@@ -238,11 +209,6 @@ class DoomScrollService : AccessibilityService() {
     private fun stopTicking() {
         tickJob?.cancel()
         tickJob = null
-    }
-
-    /** Bedtime depends on the clock, so re-evaluate thresholds as time passes. */
-    private fun applyThresholds() {
-        engine.updateThresholds(settings.thresholdsAt(LocalTime.now().hour, adaptiveFactor))
     }
 
     private fun handle(intervention: Intervention?) {
@@ -326,7 +292,5 @@ class DoomScrollService : AccessibilityService() {
         const val FLUSH_EVERY_TICKS = 60
         /** Leaving within this long after a nudge counts as "left". */
         const val NUDGE_LEFT_WINDOW_MS = 60_000L
-        /** "Just browsing" on the mindful-open prompt makes the first nudge come twice as fast. */
-        const val JUST_BROWSING_NUDGE_SCALE = 0.5
     }
 }

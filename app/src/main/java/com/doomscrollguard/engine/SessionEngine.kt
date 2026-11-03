@@ -25,18 +25,6 @@ class SessionEngine(
 
     val isActive: Boolean get() = foregroundPackage != null
 
-    /** Increments every time a fresh session starts, so callers can react to new sessions. */
-    var sessionCount: Int = 0
-        private set
-
-    /**
-     * Makes the first nudge of the current session come sooner (or later) by
-     * [factor], e.g. 0.5 when the user says they're "just browsing".
-     */
-    fun scaleCurrentSessionNudge(factor: Double) {
-        session?.nudgeScale = factor
-    }
-
     fun updateThresholds(newThresholds: Thresholds) {
         thresholds = newThresholds
     }
@@ -62,7 +50,6 @@ class SessionEngine(
             val leftAt = s?.leftAt
             if (s == null || (leftAt != null && now - leftAt >= thresholds.sessionResetMs)) {
                 session = Session(activeSince = now)
-                sessionCount++
             } else {
                 s.resumeAt(now)
             }
@@ -111,8 +98,8 @@ class SessionEngine(
 
         val level = when (val last = s.lastLevel) {
             null -> {
-                val due = active >= thresholds.nudgeAfterMs * s.nudgeScale ||
-                    s.gestures >= thresholds.nudgeAfterGestures * s.nudgeScale
+                val due = active >= thresholds.nudgeAfterMs ||
+                    s.gestures >= thresholds.nudgeAfterGestures
                 if (due) InterventionLevel.NUDGE else null
             }
             else -> {
@@ -138,7 +125,6 @@ class SessionEngine(
         var distancePx = 0L
         var lastLevel: InterventionLevel? = null
         var activeAtLastIntervention = 0L
-        var nudgeScale = 1.0
 
         fun activeMs(now: Long): Long = accumulatedMs + (activeSince?.let { now - it } ?: 0L)
 

@@ -24,9 +24,7 @@ shows a countdown instead of the feed.
 | Intention | 2 words, 10 s | 3 words, 15 s | 5 words, 30 s | 7 words, 45 s |
 | Break after leaving | 2 min (skip after 10 s) | 5 min (skip after 30 s) | 15 min (no skip) | 30 min (no skip) |
 
-The level table above shows Balanced timings. Plus: daily goal and streaks, 7-day chart, bedtime mode (2× stricter at night), a 9 PM recap,
-adaptive timing (reminders come sooner if you keep tapping "Continue"), and an optional
-"what brings you here?" prompt when opening a feed.
+The first table shows Balanced timings. Plus: daily goal and streaks, a 7-day chart, and a 9 PM recap.
 
 **Privacy:** the accessibility service runs with `canRetrieveWindowContent="false"`. It only sees
 *which app is open* and *that a scroll happened*. The app has no `INTERNET` permission, so all
@@ -67,7 +65,7 @@ The app shows these steps.
 |---|---|
 | `engine/SessionEngine.kt` | Pure-Kotlin rules: sessions, escalation, cooldowns (unit tested) |
 | `engine/GestureAggregator.kt` | Collapses scroll-event bursts into swipes |
-| `engine/Adaptive.kt` | Adjusts timing from recent pause outcomes |
+| `engine/Strictness.kt` | Gentle / Balanced / Strict / Hardcore presets, break timer |
 | `service/DoomScrollService.kt` | Accessibility service: foreground tracking, scrolls, logging |
 | `service/OverlayController.kt` | Draws intervention screens over other apps |
 | `data/` | DataStore settings, Room stats |

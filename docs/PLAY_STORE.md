@@ -41,9 +41,8 @@ Upload file: `app/build/outputs/bundle/release/app-release.aab` (build with `./g
 > FEATURES
 > • Works with Instagram, YouTube, TikTok, Facebook, X, Reddit, Snapchat, or any app you choose
 > • Daily goal, streaks, and a 7-day chart of your feed time
-> • Bedtime mode: stricter reminders late at night
-> • Smart timing: reminders come sooner if you often keep scrolling
-> • Optional "What brings you here?" check when you open a feed
+> • Four strictness levels, from Gentle to Hardcore (reminders after just 1 minute)
+> • Leaving actually sticks: a short break locks your feeds so you can't just reopen them
 > • Evening recap of your day
 >
 > PRIVATE BY DESIGN
@@ -59,7 +58,7 @@ Upload file: `app/build/outputs/bundle/release/app-release.aab` (build with `./g
       right-click `res` → New → Image Asset, or screenshot the launcher icon)
 - [ ] Feature graphic 1024×500 PNG
 - [ ] 2–8 phone screenshots. Suggested: onboarding welcome, home stats, nudge card over a feed,
-      breathing pause, intention screen, bedtime settings. (Use the in-app **Preview** buttons to
+      breathing pause, intention screen, break countdown, strictness levels. (Use the in-app **Preview** buttons to
       capture the overlay screens without needing a real feed.)
 
 ## 3. App content

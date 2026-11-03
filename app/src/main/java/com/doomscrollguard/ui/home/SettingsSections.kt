@@ -111,43 +111,6 @@ fun AppsSection(monitored: Set<String>, onToggle: (packages: List<String>, enabl
 }
 
 @Composable
-fun BedtimeSection(
-    settings: Settings,
-    onEnabledChange: (Boolean) -> Unit,
-    onHoursChange: (start: Int, end: Int) -> Unit,
-) {
-    SectionCard(title = "Bedtime mode") {
-        ToggleRow(
-            label = "Stricter at night",
-            subtitle = "Reminders come twice as fast during these hours.",
-            checked = settings.bedtimeEnabled,
-            onChange = onEnabledChange,
-        )
-        if (settings.bedtimeEnabled) {
-            HourStepper("Starts", settings.bedtimeStartHour) { onHoursChange(it, settings.bedtimeEndHour) }
-            HourStepper("Ends", settings.bedtimeEndHour) { onHoursChange(settings.bedtimeStartHour, it) }
-        }
-    }
-}
-
-@Composable
-private fun HourStepper(label: String, hour: Int, onChange: (Int) -> Unit) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(label, modifier = Modifier.weight(1f))
-        TextButton(onClick = { onChange((hour + 23) % 24) }) { Text("−") }
-        Text(formatHour(hour), fontWeight = FontWeight.Medium)
-        TextButton(onClick = { onChange((hour + 1) % 24) }) { Text("+") }
-    }
-}
-
-fun formatHour(hour: Int): String = when {
-    hour == 0 -> "12 AM"
-    hour < 12 -> "$hour AM"
-    hour == 12 -> "12 PM"
-    else -> "${hour - 12} PM"
-}
-
-@Composable
 fun StrictnessSection(selected: Strictness, onSelect: (Strictness) -> Unit) {
     SectionCard(title = "Strictness") {
         Strictness.entries.forEach { level ->

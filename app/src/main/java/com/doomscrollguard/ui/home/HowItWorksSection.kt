@@ -15,26 +15,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.doomscrollguard.data.Settings
 import com.doomscrollguard.ui.overlay.formatDuration
-import java.time.LocalTime
-import kotlin.math.roundToInt
 
 /** Which screen the user wants to see from the "How it works" list. */
-enum class HowItWorksPreview { NUDGE, PAUSE, INTENTION, BREAK, OPENING_QUESTION }
+enum class HowItWorksPreview { NUDGE, PAUSE, INTENTION, BREAK }
 
 /**
- * Explains every reminder and exactly when it appears, using the thresholds
- * that apply right now (bedtime and adaptive timing included).
+ * Explains every reminder and exactly when it appears for the chosen
+ * strictness level.
  */
 @Composable
 fun HowItWorksSection(
     settings: Settings,
-    adaptiveFactor: Double,
     onPreview: (HowItWorksPreview) -> Unit,
 ) {
-    val hour = LocalTime.now().hour
     val rules = settings.strictness
-    val now = settings.thresholdsAt(hour, adaptiveFactor)
-    val normal = rules.thresholds
+    val now = rules.thresholds
     val nudge = formatDuration(now.nudgeAfterMs)
     val gap = formatDuration(now.escalationGapMs)
     val reset = formatDuration(now.sessionResetMs)
@@ -80,37 +75,12 @@ fun HowItWorksSection(
                     ?: "On ${rules.label} it can't be skipped."),
             onSee = { onPreview(HowItWorksPreview.BREAK) },
         )
-        Step(
-            emoji = "👋",
-            title = "Opening question " + if (settings.mindfulOpenEnabled) "(on)" else "(off)",
-            whenText = "When you open a watched app after $reset or more away",
-            body = "Asks what brings you there. \"Just browsing\" makes the first nudge come twice as fast. " +
-                "Turn it on in Smarter reminders.",
-            onSee = { onPreview(HowItWorksPreview.OPENING_QUESTION) },
-        )
-
         Text(
             "Leave your watched apps for $reset and everything starts over. Come back sooner and it " +
                 "picks up where it left off. Locking your phone stops the clock.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-
-        val reasons = buildList {
-            if (settings.isBedtime(hour)) add("bedtime mode is on (2× faster)")
-            if (settings.adaptiveEnabled && adaptiveFactor < 1.0) {
-                add("you often keep scrolling after pauses (${((1 - adaptiveFactor) * 100).roundToInt()}% sooner)")
-            }
-        }
-        if (reasons.isNotEmpty() && now != normal) {
-            Text(
-                "⚡ Reminders are coming sooner than usual right now because " +
-                    reasons.joinToString(" and ") + ". Normally the nudge comes after " +
-                    "${formatDuration(normal.nudgeAfterMs)} on ${rules.label}.",
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Medium,
-            )
-        }
     }
 }
 

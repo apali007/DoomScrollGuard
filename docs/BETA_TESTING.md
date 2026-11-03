@@ -31,7 +31,7 @@ restricted-settings hassle. Personal developer accounts need 12+ testers in a cl
 3. Did the **pause** or **intention** screen ever annoy you enough to want to uninstall?
 4. Was a reminder ever shown at a bad moment (messaging, watching something on purpose)?
 5. Did protection ever turn itself off? (Phone brand/model?)
-6. Which feature helped most: nudge, pause, intention, stats, bedtime, recap?
+6. Which feature helped most: nudge, pause, intention, break, stats, recap? Which strictness level did you use?
 7. Would you keep using it? Would you recommend it?
 
 Also ask them to screenshot the home screen stats (Today + Last 7 days). Those numbers show

@@ -24,7 +24,7 @@ The app also reads the list of installed apps, only to let you choose which ones
 ## What the app stores
 
 On your device only:
-- Your settings (which apps to watch, daily goal, bedtime hours, etc.).
+- Your settings (which apps to watch, strictness level, daily goal, etc.).
 - Daily totals of time spent in watched apps.
 - A log of reminders shown and what you chose (left / kept scrolling), including any reason you
   typed on the "intention" screen.
