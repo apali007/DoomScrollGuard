@@ -61,6 +61,9 @@ data class InterventionCopy(
     val distance: String,
     /** Total feed time today across all apps, if known. */
     val todayTotal: String? = null,
+    /** True once today's feed time has reached the daily goal. */
+    val overGoal: Boolean = false,
+    val dailyGoal: String? = null,
 )
 
 /** Level 1: a gentle card in the middle of the screen. The app stays usable around it. */
@@ -95,6 +98,14 @@ fun NudgeCard(copy: InterventionCopy, onDismiss: () -> Unit) {
                     color = Color.White.copy(alpha = 0.75f),
                     fontSize = 13.sp,
                 )
+                if (copy.overGoal) {
+                    Text(
+                        "You're past your ${copy.dailyGoal} daily goal (today: ${copy.todayTotal}).",
+                        color = Color(0xFFE5735C),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
             }
             TextButton(onClick = onDismiss) {
                 Text("OK", color = Calm)

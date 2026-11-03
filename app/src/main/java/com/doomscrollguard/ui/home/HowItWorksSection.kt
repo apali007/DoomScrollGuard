@@ -80,10 +80,19 @@ fun HowItWorksSection(
             whenText = "When you leave from a pause or intention",
             body = "Leaving with \"Leave\", Home or Recents locks your watched apps for " +
                 "${formatDuration(rules.breakMs)}. Reopening one shows a countdown instead of the feed. " +
+                "Come back after the break and you continue where you left off. " +
                 (rules.breakSkipAfterSeconds?.let { "\"Open anyway\" appears after ${formatDuration(it * SECOND)}." }
                     ?: "On ${rules.label} it can't be skipped."),
             onSee = { onPreview(HowItWorksPreview.BREAK) },
         )
+        Step(
+            emoji = "🎯",
+            title = "Past your daily goal",
+            whenText = "After ${settings.dailyGoalMinutes} min in feeds today",
+            body = "Every new visit gets its first nudge after just 1 minute, whatever your level.",
+            onSee = null,
+        )
+
         Text(
             "Leave your watched apps for $reset and everything starts over. Come back sooner and it " +
                 "picks up where it left off. Locking your phone stops the clock.",
@@ -99,7 +108,7 @@ private fun Step(
     title: String,
     whenText: String,
     body: String,
-    onSee: () -> Unit,
+    onSee: (() -> Unit)?,
 ) {
     Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
         Text(emoji, fontSize = 26.sp, modifier = Modifier.padding(top = 2.dp))
@@ -117,6 +126,6 @@ private fun Step(
             )
             Text(body, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        TextButton(onClick = onSee) { Text("See it") }
+        if (onSee != null) TextButton(onClick = onSee) { Text("See it") }
     }
 }

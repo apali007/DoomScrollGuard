@@ -37,6 +37,23 @@ class SessionEngine(
         session?.nudgeScale = factor
     }
 
+    /**
+     * Makes the current session's first nudge come after [ms] of scrolling if
+     * that's sooner than usual, e.g. once the user is past their daily goal.
+     */
+    fun nudgeCurrentSessionAfter(ms: Long) {
+        session?.nudgeAfterOverrideMs = ms
+    }
+
+    /**
+     * Keeps the current session (and its escalation level) alive until [until]
+     * plus the normal reset time, e.g. through a break, so coming back after
+     * the break continues where it left off instead of starting over.
+     */
+    fun holdSessionUntil(until: Long) {
+        session?.let { it.holdUntil = maxOf(it.holdUntil, until) }
+    }
+
     fun updateThresholds(newThresholds: Thresholds) {
         thresholds = newThresholds
     }
@@ -60,7 +77,9 @@ class SessionEngine(
 
         if (foregroundPackage == null) {
             val leftAt = s?.leftAt
-            if (s == null || (leftAt != null && now - leftAt >= thresholds.sessionResetMs)) {
+            // The reset countdown starts when they left, or when a hold (break) ends.
+            val awaySince = leftAt?.let { maxOf(it, s.holdUntil) }
+            if (s == null || (awaySince != null && now - awaySince >= thresholds.sessionResetMs)) {
                 session = Session(activeSince = now)
                 sessionCount++
             } else {
@@ -111,7 +130,8 @@ class SessionEngine(
 
         val level = when (val last = s.lastLevel) {
             null -> {
-                val due = active >= thresholds.nudgeAfterMs * s.nudgeScale ||
+                val nudgeAfterMs = minOf(thresholds.nudgeAfterMs, s.nudgeAfterOverrideMs ?: Long.MAX_VALUE)
+                val due = active >= nudgeAfterMs * s.nudgeScale ||
                     s.gestures >= thresholds.nudgeAfterGestures * s.nudgeScale
                 if (due) InterventionLevel.NUDGE else null
             }
@@ -139,6 +159,8 @@ class SessionEngine(
         var lastLevel: InterventionLevel? = null
         var activeAtLastIntervention = 0L
         var nudgeScale = 1.0
+        var nudgeAfterOverrideMs: Long? = null
+        var holdUntil = 0L
 
         fun activeMs(now: Long): Long = accumulatedMs + (activeSince?.let { now - it } ?: 0L)
 

@@ -155,6 +155,48 @@ class SessionEngineTest {
     }
 
     @Test
+    fun holdKeepsEscalationThroughABreak() {
+        val e = engine() // reset after 2 min away
+        e.onForeground(insta, monitored = true, now = 0)
+        assertEquals(InterventionLevel.NUDGE, e.tick(now = 10 * MINUTE)?.level)
+        assertEquals(InterventionLevel.PAUSE, e.tick(now = 15 * MINUTE)?.level)
+        // Leaves from the pause and takes a 5-minute break.
+        e.holdSessionUntil(15 * MINUTE + 5 * MINUTE)
+        e.onForeground(launcher, monitored = false, now = 15 * MINUTE)
+        // Back 1 minute after the break ends (6 min away, longer than the 2 min reset).
+        e.onForeground(insta, monitored = true, now = 21 * MINUTE)
+        assertEquals(1, e.sessionCount) // same session, not a fresh start
+        assertEquals(InterventionLevel.INTENTION, e.tick(now = 26 * MINUTE)?.level)
+    }
+
+    @Test
+    fun holdExpiresAfterResetTimePastTheBreak() {
+        val e = engine()
+        e.onForeground(insta, monitored = true, now = 0)
+        e.holdSessionUntil(5 * MINUTE)
+        e.onForeground(launcher, monitored = false, now = MINUTE)
+        e.onForeground(insta, monitored = true, now = 7 * MINUTE) // 2 min after the hold
+        assertEquals(2, e.sessionCount)
+    }
+
+    @Test
+    fun overGoalNudgesAfterOneMinute() {
+        val e = engine()
+        e.onForeground(insta, monitored = true, now = 0)
+        e.nudgeCurrentSessionAfter(MINUTE)
+        assertNull(e.tick(now = MINUTE - 1))
+        assertEquals(InterventionLevel.NUDGE, e.tick(now = MINUTE)?.level)
+    }
+
+    @Test
+    fun nudgeOverrideNeverDelaysTheNudge() {
+        val e = engine() // nudge after 10 min
+        e.onForeground(insta, monitored = true, now = 0)
+        e.nudgeCurrentSessionAfter(30 * MINUTE)
+        assertEquals(InterventionLevel.NUDGE, e.tick(now = 10 * MINUTE)?.level)
+    }
+
+    @Test
     fun thresholdsCanBeSwappedLive() {
         val e = engine()
         e.onForeground(insta, monitored = true, now = 0)

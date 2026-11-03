@@ -67,12 +67,13 @@ class OverlayController(private val service: AccessibilityService) {
     fun show(
         intervention: Intervention,
         todayMs: Long?,
+        dailyGoalMs: Long,
         onResult: (OverlayResult) -> Unit,
     ): Boolean {
         val level = intervention.level
         if (!makeRoomFor(priorityOf(level))) return false
 
-        val copy = copyFor(intervention.stats, todayMs)
+        val copy = copyFor(intervention.stats, todayMs, dailyGoalMs)
         val finish: (OverlayResult) -> Unit = { result ->
             dismiss()
             onResult(result)
@@ -209,7 +210,7 @@ class OverlayController(private val service: AccessibilityService) {
         }
     }
 
-    private fun copyFor(stats: SessionStats, todayMs: Long?): InterventionCopy {
+    private fun copyFor(stats: SessionStats, todayMs: Long?, dailyGoalMs: Long): InterventionCopy {
         val ydpi = service.resources.displayMetrics.ydpi
         return InterventionCopy(
             appLabel = MonitoredApps.labelFor(stats.currentPackage, service.packageManager),
@@ -217,6 +218,8 @@ class OverlayController(private val service: AccessibilityService) {
             gestures = stats.gestures,
             distance = formatMeters(pixelsToMeters(stats.distancePx, ydpi)),
             todayTotal = todayMs?.takeIf { it > 0 }?.let(::formatDuration),
+            overGoal = todayMs != null && todayMs >= dailyGoalMs,
+            dailyGoal = formatDuration(dailyGoalMs),
         )
     }
 

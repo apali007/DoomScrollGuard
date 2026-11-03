@@ -17,6 +17,7 @@ import com.doomscrollguard.data.db.Outcome
 import com.doomscrollguard.engine.BreakTimer
 import com.doomscrollguard.engine.Intervention
 import com.doomscrollguard.engine.InterventionLevel
+import com.doomscrollguard.engine.MINUTE
 import com.doomscrollguard.engine.SessionEngine
 import com.doomscrollguard.ui.overlay.MindfulChoice
 import kotlinx.coroutines.CoroutineScope
@@ -141,8 +142,23 @@ class DoomScrollService : AccessibilityService() {
             engine.isActive && !wasActive -> startTicking()
             !engine.isActive && wasActive -> onLeftFeeds(now)
         }
-        if (engine.sessionCount != sessionsBefore) askWhyOpening(pkg)
+        if (engine.sessionCount != sessionsBefore) {
+            askWhyOpening(pkg)
+            applyDailyGoal()
+        }
     }
+
+    /** Past today's goal: every new visit gets its first nudge after a minute. */
+    private fun applyDailyGoal() {
+        scope.launch {
+            val todayMs = runCatching { stats.summaryOnce().todayMs }.getOrNull() ?: return@launch
+            if (todayMs + unflushedUsageMs(SystemClock.elapsedRealtime()) >= dailyGoalMs()) {
+                engine.nudgeCurrentSessionAfter(OVER_GOAL_NUDGE_MS)
+            }
+        }
+    }
+
+    private fun dailyGoalMs(): Long = settings.dailyGoalMinutes * MINUTE
 
     /** On every fresh visit to a watched app (not a quick return), ask what they came for. */
     private fun askWhyOpening(pkg: String) {
@@ -176,6 +192,8 @@ class DoomScrollService : AccessibilityService() {
 
     private fun startBreak() {
         breakTimer.start(SystemClock.elapsedRealtime(), settings.strictness.breakMs)
+        // Coming back after the break continues the escalation rather than starting over.
+        engine.holdSessionUntil(breakTimer.endsAtMs)
     }
 
     private fun leaveMonitoredApps() {
@@ -232,7 +250,7 @@ class DoomScrollService : AccessibilityService() {
                 ?.plus(unflushedUsageMs(SystemClock.elapsedRealtime()))
             if (!engine.isActive) return@launch // left while we were loading stats
 
-            val shown = overlay.show(intervention, todayMs, ::onOverlayResult)
+            val shown = overlay.show(intervention, todayMs, dailyGoalMs(), ::onOverlayResult)
             if (!shown) return@launch
             closeOpen(Outcome.IGNORED) // a new intervention supersedes the previous one
             val pkg = intervention.stats.currentPackage
@@ -308,5 +326,7 @@ class DoomScrollService : AccessibilityService() {
         const val NUDGE_LEFT_WINDOW_MS = 60_000L
         /** "Just browsing" on the opening question makes the first nudge come twice as fast. */
         const val JUST_BROWSING_NUDGE_SCALE = 0.5
+        /** Once past the daily goal, how soon each new visit gets nudged. */
+        const val OVER_GOAL_NUDGE_MS = MINUTE
     }
 }

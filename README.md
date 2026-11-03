@@ -25,6 +25,9 @@ shows a countdown instead of the feed.
 | Intention | 2 words, 10 s | 3 words, 15 s | 5 words, 30 s | 7 words, 45 s |
 | Break after leaving | 2 min (skip after 10 s) | 5 min (skip after 30 s) | 5 min (skip after 1 min) | 5 min (skip after 2 min) |
 
+**Breaks keep your place:** coming back after a break continues the escalation instead of
+starting over. **Daily goal:** once you're past it, every new visit gets a nudge after 1 minute.
+
 The first table shows Balanced timings. Plus: a "what brings you here?" question every time you open a watched app fresh, daily goal and
 streaks, a 7-day chart, and a 9 PM recap.
 

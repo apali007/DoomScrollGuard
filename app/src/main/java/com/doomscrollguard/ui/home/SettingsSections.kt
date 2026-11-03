@@ -44,6 +44,11 @@ fun GoalSection(goalMinutes: Int, onGoalChange: (Int) -> Unit) {
     var value by remember(goalMinutes) { mutableFloatStateOf(goalMinutes.toFloat()) }
     SectionCard(title = "Daily goal") {
         Text("At most ${value.toInt()} min a day in feeds", fontWeight = FontWeight.Medium)
+        Text(
+            "Once you pass it, every new visit gets a nudge after 1 minute.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         Slider(
             value = value,
             onValueChange = { value = it },
