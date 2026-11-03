@@ -122,7 +122,8 @@ fun BreakScreen(
                     fontSize = 13.sp,
                 )
                 skipIn > 0 -> TextButton(onClick = {}, enabled = false) {
-                    Text("Open anyway ($skipIn)", color = Color.White.copy(alpha = 0.35f))
+                    val wait = if (skipIn >= 60) String.format(Locale.US, "%d:%02d", skipIn / 60, skipIn % 60) else "$skipIn"
+                    Text("Open anyway ($wait)", color = Color.White.copy(alpha = 0.35f))
                 }
                 else -> TextButton(onClick = onOpenAnyway) {
                     Text("Open anyway", color = Color.White.copy(alpha = 0.7f))

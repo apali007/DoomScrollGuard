@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.doomscrollguard.data.Settings
+import com.doomscrollguard.engine.SECOND
 import com.doomscrollguard.ui.overlay.formatDuration
 
 /** Which screen the user wants to see from the "How it works" list. */
@@ -79,7 +80,7 @@ fun HowItWorksSection(
             whenText = "When you leave from a pause or intention",
             body = "Leaving with \"Leave\", Home or Recents locks your watched apps for " +
                 "${formatDuration(rules.breakMs)}. Reopening one shows a countdown instead of the feed. " +
-                (rules.breakSkipAfterSeconds?.let { "\"Open anyway\" appears after $it seconds." }
+                (rules.breakSkipAfterSeconds?.let { "\"Open anyway\" appears after ${formatDuration(it * SECOND)}." }
                     ?: "On ${rules.label} it can't be skipped."),
             onSee = { onPreview(HowItWorksPreview.BREAK) },
         )

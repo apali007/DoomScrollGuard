@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.doomscrollguard.data.InstalledApp
 import com.doomscrollguard.data.MonitoredApps
 import com.doomscrollguard.data.Settings
+import com.doomscrollguard.engine.SECOND
 import com.doomscrollguard.engine.Strictness
 import com.doomscrollguard.ui.overlay.formatDuration
 import kotlinx.coroutines.Dispatchers
@@ -143,7 +144,7 @@ fun StrictnessSection(selected: Strictness, onSelect: (Strictness) -> Unit) {
 
 fun strictnessSummary(level: Strictness): String {
     val t = level.thresholds
-    val skip = level.breakSkipAfterSeconds?.let { "skippable after $it sec" } ?: "can't be skipped"
+    val skip = level.breakSkipAfterSeconds?.let { "skippable after ${formatDuration(it * SECOND)}" } ?: "can't be skipped"
     return "Nudge after ${formatDuration(t.nudgeAfterMs)}, reminders every ${formatDuration(t.escalationGapMs)}. " +
         "Leaving starts a ${formatDuration(level.breakMs)} break ($skip)."
 }

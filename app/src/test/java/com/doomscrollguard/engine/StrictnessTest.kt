@@ -2,7 +2,6 @@ package com.doomscrollguard.engine
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -18,11 +17,17 @@ class StrictnessTest {
             assertTrue(msg, looser.pauseLockSeconds < stricter.pauseLockSeconds)
             assertTrue(msg, looser.intentionLockSeconds < stricter.intentionLockSeconds)
             assertTrue(msg, looser.intentionMinWords < stricter.intentionMinWords)
-            assertTrue(msg, looser.breakMs < stricter.breakMs)
+            assertTrue(msg, looser.breakMs <= stricter.breakMs)
+            assertTrue(msg, looser.breakSkipAfterSeconds!! < stricter.breakSkipAfterSeconds!!)
         }
-        // Strict and above: breaks can't be skipped.
-        assertNull(Strictness.STRICT.breakSkipAfterSeconds)
-        assertNull(Strictness.HARDCORE.breakSkipAfterSeconds)
+    }
+
+    @Test
+    fun strictAndHardcoreBreaksAsRequested() {
+        assertEquals(5 * MINUTE, Strictness.STRICT.breakMs)
+        assertEquals(60, Strictness.STRICT.breakSkipAfterSeconds)
+        assertEquals(5 * MINUTE, Strictness.HARDCORE.breakMs)
+        assertEquals(120, Strictness.HARDCORE.breakSkipAfterSeconds)
     }
 
     @Test

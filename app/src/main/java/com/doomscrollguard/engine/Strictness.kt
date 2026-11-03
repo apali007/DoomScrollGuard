@@ -53,8 +53,8 @@ enum class Strictness(
         pauseLockSeconds = 20,
         intentionLockSeconds = 30,
         intentionMinWords = 5,
-        breakMs = 15 * MINUTE,
-        breakSkipAfterSeconds = null,
+        breakMs = 5 * MINUTE,
+        breakSkipAfterSeconds = 60,
     ),
     HARDCORE(
         label = "Hardcore",
@@ -68,8 +68,8 @@ enum class Strictness(
         pauseLockSeconds = 30,
         intentionLockSeconds = 45,
         intentionMinWords = 7,
-        breakMs = 30 * MINUTE,
-        breakSkipAfterSeconds = null,
+        breakMs = 5 * MINUTE,
+        breakSkipAfterSeconds = 120,
     );
 
     companion object {
