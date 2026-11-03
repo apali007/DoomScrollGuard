@@ -10,15 +10,24 @@ class StrictnessTest {
 
     @Test
     fun levelsGetStricterInEveryDimension() {
-        val (g, b, s) = Strictness.entries
-        assertTrue(g.thresholds.nudgeAfterMs > b.thresholds.nudgeAfterMs)
-        assertTrue(b.thresholds.nudgeAfterMs > s.thresholds.nudgeAfterMs)
-        assertTrue(g.thresholds.nudgeAfterGestures > b.thresholds.nudgeAfterGestures)
-        assertTrue(b.thresholds.nudgeAfterGestures > s.thresholds.nudgeAfterGestures)
-        assertTrue(g.pauseLockSeconds < b.pauseLockSeconds && b.pauseLockSeconds < s.pauseLockSeconds)
-        assertTrue(g.intentionMinWords < b.intentionMinWords && b.intentionMinWords < s.intentionMinWords)
-        assertTrue(g.breakMs < b.breakMs && b.breakMs < s.breakMs)
-        assertNull(s.breakSkipAfterSeconds) // strict breaks can't be skipped
+        Strictness.entries.zipWithNext().forEach { (looser, stricter) ->
+            val msg = "$looser -> $stricter"
+            assertTrue(msg, looser.thresholds.nudgeAfterMs > stricter.thresholds.nudgeAfterMs)
+            assertTrue(msg, looser.thresholds.nudgeAfterGestures > stricter.thresholds.nudgeAfterGestures)
+            assertTrue(msg, looser.thresholds.escalationGapMs >= stricter.thresholds.escalationGapMs)
+            assertTrue(msg, looser.pauseLockSeconds < stricter.pauseLockSeconds)
+            assertTrue(msg, looser.intentionLockSeconds < stricter.intentionLockSeconds)
+            assertTrue(msg, looser.intentionMinWords < stricter.intentionMinWords)
+            assertTrue(msg, looser.breakMs < stricter.breakMs)
+        }
+        // Strict and above: breaks can't be skipped.
+        assertNull(Strictness.STRICT.breakSkipAfterSeconds)
+        assertNull(Strictness.HARDCORE.breakSkipAfterSeconds)
+    }
+
+    @Test
+    fun hardcoreStartsAfterOneMinute() {
+        assertEquals(MINUTE, Strictness.HARDCORE.thresholds.nudgeAfterMs)
     }
 
     @Test

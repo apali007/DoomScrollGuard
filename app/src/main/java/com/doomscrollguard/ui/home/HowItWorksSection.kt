@@ -77,7 +77,7 @@ fun HowItWorksSection(
             body = "Leaving with \"Leave\", Home or Recents locks your watched apps for " +
                 "${formatDuration(rules.breakMs)}. Reopening one shows a countdown instead of the feed. " +
                 (rules.breakSkipAfterSeconds?.let { "\"Open anyway\" appears after $it seconds." }
-                    ?: "On Strict it can't be skipped."),
+                    ?: "On ${rules.label} it can't be skipped."),
             onSee = { onPreview(HowItWorksPreview.BREAK) },
         )
         Step(

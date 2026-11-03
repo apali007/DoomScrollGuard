@@ -117,7 +117,7 @@ fun BreakScreen(
             Spacer(Modifier.height(8.dp))
             when {
                 skipIn == null -> Text(
-                    "Strict mode: breaks can't be skipped.",
+                    "This break can't be skipped.",
                     color = Color.White.copy(alpha = 0.4f),
                     fontSize = 13.sp,
                 )

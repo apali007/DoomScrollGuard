@@ -55,6 +55,21 @@ enum class Strictness(
         intentionMinWords = 5,
         breakMs = 15 * MINUTE,
         breakSkipAfterSeconds = null,
+    ),
+    HARDCORE(
+        label = "Hardcore",
+        emoji = "🔥",
+        thresholds = Thresholds(
+            nudgeAfterMs = 1 * MINUTE,
+            nudgeAfterGestures = 20,
+            escalationGapMs = 1 * MINUTE,
+            sessionResetMs = 2 * MINUTE,
+        ),
+        pauseLockSeconds = 30,
+        intentionLockSeconds = 45,
+        intentionMinWords = 7,
+        breakMs = 30 * MINUTE,
+        breakSkipAfterSeconds = null,
     );
 
     companion object {
