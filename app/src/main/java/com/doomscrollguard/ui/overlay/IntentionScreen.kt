@@ -54,6 +54,7 @@ fun wordCount(text: String): Int = text.trim().split(Regex("\\s+")).count { it.i
 fun IntentionScreen(
     copy: InterventionCopy,
     lockSeconds: Int = INTENTION_LOCK_SECONDS,
+    minWords: Int = INTENTION_MIN_WORDS,
     onLeave: () -> Unit,
     onContinue: (reason: String) -> Unit,
 ) {
@@ -66,7 +67,7 @@ fun IntentionScreen(
         }
     }
     val words = wordCount(reason)
-    val canContinue = remaining == 0 && words >= INTENTION_MIN_WORDS
+    val canContinue = remaining == 0 && words >= minWords
 
     Box(
         modifier = Modifier
@@ -146,7 +147,7 @@ fun IntentionScreen(
             TextButton(onClick = { onContinue(reason.trim()) }, enabled = canContinue) {
                 val label = when {
                     remaining > 0 -> "Continue ($remaining)"
-                    words < INTENTION_MIN_WORDS -> "Continue (write $INTENTION_MIN_WORDS+ words)"
+                    words < minWords -> "Continue (write $minWords+ words)"
                     else -> "Continue scrolling"
                 }
                 Text(

@@ -11,7 +11,9 @@ import com.doomscrollguard.data.MonitoredApps
 import com.doomscrollguard.engine.Intervention
 import com.doomscrollguard.engine.InterventionLevel
 import com.doomscrollguard.engine.SessionStats
+import com.doomscrollguard.engine.Strictness
 import androidx.compose.runtime.Composable
+import com.doomscrollguard.ui.overlay.BreakScreen
 import com.doomscrollguard.ui.overlay.IntentionScreen
 import com.doomscrollguard.ui.overlay.InterventionCopy
 import com.doomscrollguard.ui.overlay.MindfulChoice
@@ -40,9 +42,14 @@ class OverlayController(private val service: AccessibilityService) {
     private class Shown(
         val view: ComposeView,
         val owner: OverlayLifecycleOwner,
-        /** Null for the mindful-open prompt, which any intervention may replace. */
+        /** Null for screens that aren't interventions (opening question, break). */
         val level: InterventionLevel?,
+        /** Higher replaces lower; equal or lower never replaces what's on screen. */
+        val priority: Int,
     )
+
+    /** Lock times and word counts for the pause/intention/break screens. */
+    var strictness: Strictness = Strictness.BALANCED
 
     private val windowManager = service.getSystemService(WindowManager::class.java)
     private val handler = Handler(Looper.getMainLooper())
@@ -50,6 +57,8 @@ class OverlayController(private val service: AccessibilityService) {
     private var shown: Shown? = null
 
     val showingLevel: InterventionLevel? get() = shown?.level
+
+    val isShowingBreak: Boolean get() = shown?.priority == PRIORITY_BREAK
 
     /**
      * Shows [intervention] unless an equal or stronger one is already on screen.
@@ -60,30 +69,29 @@ class OverlayController(private val service: AccessibilityService) {
         todayMs: Long?,
         onResult: (OverlayResult) -> Unit,
     ): Boolean {
-        // Never stack overlays; a stronger level replaces a weaker one.
-        shown?.let { current ->
-            val currentLevel = current.level
-            if (currentLevel != null && currentLevel >= intervention.level) return false
-            dismiss()
-        }
-
         val level = intervention.level
+        if (!makeRoomFor(priorityOf(level))) return false
+
         val copy = copyFor(intervention.stats, todayMs)
         val finish: (OverlayResult) -> Unit = { result ->
             dismiss()
             onResult(result)
         }
 
-        addOverlay(level, layoutParamsFor(level)) {
+        val rules = strictness
+        addOverlay(level, priorityOf(level), layoutParamsFor(level)) {
             when (level) {
                 InterventionLevel.NUDGE -> NudgeCard(copy, onDismiss = { finish(OverlayResult.Dismissed) })
                 InterventionLevel.PAUSE -> PauseScreen(
                     copy = copy,
+                    lockSeconds = rules.pauseLockSeconds,
                     onLeave = { finish(OverlayResult.Left) },
                     onContinue = { finish(OverlayResult.Continued()) },
                 )
                 InterventionLevel.INTENTION -> IntentionScreen(
                     copy = copy,
+                    lockSeconds = rules.intentionLockSeconds,
+                    minWords = rules.intentionMinWords,
                     onLeave = { finish(OverlayResult.Left) },
                     onContinue = { reason -> finish(OverlayResult.Continued(reason)) },
                 )
@@ -103,7 +111,7 @@ class OverlayController(private val service: AccessibilityService) {
         if (shown != null) return false
         val label = MonitoredApps.labelFor(pkg, service.packageManager)
         val params = layoutParamsFor(InterventionLevel.PAUSE) // full screen, not focusable
-        addOverlay(level = null, params = params) {
+        addOverlay(level = null, priority = PRIORITY_MINDFUL, params = params) {
             MindfulOpenScreen(label) { choice ->
                 dismiss()
                 onChoice(choice)
@@ -112,8 +120,50 @@ class OverlayController(private val service: AccessibilityService) {
         return true
     }
 
+    /**
+     * Covers [pkg] with the break countdown. Replaces anything else on screen.
+     * Exactly one of the callbacks fires, after the overlay is removed.
+     */
+    fun showBreak(
+        pkg: String,
+        endsAtElapsed: Long,
+        onGoHome: () -> Unit,
+        onOpenAnyway: () -> Unit,
+        onFinished: () -> Unit,
+    ): Boolean {
+        if (!makeRoomFor(PRIORITY_BREAK)) return false
+        val label = MonitoredApps.labelFor(pkg, service.packageManager)
+        val skipAfter = strictness.breakSkipAfterSeconds
+        val then: (() -> Unit) -> Unit = { callback ->
+            dismiss()
+            callback()
+        }
+        addOverlay(level = null, priority = PRIORITY_BREAK, params = layoutParamsFor(InterventionLevel.PAUSE)) {
+            BreakScreen(
+                appLabel = label,
+                endsAtElapsed = endsAtElapsed,
+                skipAfterSeconds = skipAfter,
+                onGoHome = { then(onGoHome) },
+                onOpenAnyway = { then(onOpenAnyway) },
+                onFinished = { then(onFinished) },
+            )
+        }
+        return true
+    }
+
+    /** Clears a weaker overlay so one of [priority] can show. False if something as strong is up. */
+    private fun makeRoomFor(priority: Int): Boolean {
+        val current = shown ?: return true
+        if (current.priority >= priority) return false
+        dismiss()
+        return true
+    }
+
+    private fun priorityOf(level: InterventionLevel): Int = PRIORITY_NUDGE + level.ordinal
+
     private fun addOverlay(
         level: InterventionLevel?,
+        priority: Int,
         params: WindowManager.LayoutParams,
         content: @Composable () -> Unit,
     ) {
@@ -122,7 +172,7 @@ class OverlayController(private val service: AccessibilityService) {
         owner.attachTo(view)
         view.setContent { DoomScrollGuardTheme(darkTheme = true) { content() } }
         windowManager.addView(view, params)
-        shown = Shown(view, owner, level)
+        shown = Shown(view, owner, level, priority)
     }
 
     /** Removes whatever is on screen without reporting a result. */
@@ -171,5 +221,8 @@ class OverlayController(private val service: AccessibilityService) {
 
     private companion object {
         const val NUDGE_VISIBLE_MS = 8_000L
+        const val PRIORITY_MINDFUL = 0
+        const val PRIORITY_NUDGE = 1 // PAUSE = 2, INTENTION = 3
+        const val PRIORITY_BREAK = 10
     }
 }

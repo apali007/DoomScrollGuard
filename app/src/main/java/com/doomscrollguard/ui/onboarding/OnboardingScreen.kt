@@ -47,6 +47,7 @@ import com.doomscrollguard.ui.home.BatteryHelpCard
 import com.doomscrollguard.ui.home.GoalSection
 import com.doomscrollguard.ui.home.RestrictedSettingsHelp
 import com.doomscrollguard.ui.home.StatusCard
+import com.doomscrollguard.ui.home.StrictnessSection
 import com.doomscrollguard.ui.home.openAccessibilitySettings
 import com.doomscrollguard.ui.theme.Leaf
 import kotlinx.coroutines.launch
@@ -103,6 +104,7 @@ fun OnboardingScreen(settings: Settings, repo: SettingsRepository) {
                     Level("⏳", "1. A gentle nudge", "After 10 minutes of scrolling, a small card reminds you how long it's been.")
                     Level("🫁", "2. A pause", "Still going 5 minutes later? A full-screen pause asks you to take a breath.")
                     Level("🧭", "3. Your intention", "Keep going and you'll need to write down what you're looking for.")
+                    Level("🌿", "Then a break", "Choose to leave and your watched apps stay locked for a few minutes, so you can't just reopen them.")
                     Body("You're always in control. You can keep scrolling, it just takes a moment of thought.")
                 }
                 Step.PRIVACY -> {
@@ -137,7 +139,9 @@ fun OnboardingScreen(settings: Settings, repo: SettingsRepository) {
                 }
                 Step.FINISH -> {
                     BigEmoji("🎯")
-                    Title("Set your goal")
+                    Title("Last step")
+                    Body("How firm should DoomScroll Guard be? You can change this anytime.")
+                    StrictnessSection(settings.strictness) { scope.launch { repo.setStrictness(it) } }
                     GoalSection(settings.dailyGoalMinutes) { scope.launch { repo.setDailyGoal(it) } }
                     Body("Each evening at 9 PM you'll get a short recap of your day. You can turn it off anytime.")
                 }

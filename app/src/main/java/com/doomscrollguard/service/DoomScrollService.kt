@@ -14,6 +14,7 @@ import com.doomscrollguard.DoomScrollApp
 import com.doomscrollguard.data.Settings
 import com.doomscrollguard.data.StatsRepository
 import com.doomscrollguard.data.db.Outcome
+import com.doomscrollguard.engine.BreakTimer
 import com.doomscrollguard.engine.Intervention
 import com.doomscrollguard.engine.InterventionLevel
 import com.doomscrollguard.engine.SessionEngine
@@ -48,6 +49,8 @@ class DoomScrollService : AccessibilityService() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val engine = SessionEngine()
+    /** After leaving from a pause/intention, watched apps show a break screen until this ends. */
+    private val breakTimer = BreakTimer()
     private lateinit var overlay: OverlayController
     private lateinit var stats: StatsRepository
 
@@ -64,7 +67,7 @@ class DoomScrollService : AccessibilityService() {
 
     private val screenOffReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            leaveMonitoredApps()
+            onScreenOff()
         }
     }
 
@@ -87,6 +90,7 @@ class DoomScrollService : AccessibilityService() {
         scope.launch {
             app.settings.settings.collect { newSettings ->
                 settings = newSettings
+                overlay.strictness = newSettings.strictness
                 applyThresholds()
                 val fg = engine.foregroundPackage
                 if (fg != null && fg !in settings.monitoredPackages) leaveMonitoredApps()
@@ -123,11 +127,19 @@ class DoomScrollService : AccessibilityService() {
     }
 
     private fun onForegroundChanged(pkg: String, now: Long) {
+        val monitored = pkg in settings.monitoredPackages
+        if (monitored && breakTimer.isActive(now)) {
+            coverWithBreak(pkg)
+            return
+        }
+        // Moved on to a non-watched app: the break screen must not follow them there.
+        if (!monitored && overlay.isShowingBreak) overlay.dismiss()
+
         val wasActive = engine.isActive
         val previous = engine.foregroundPackage
         val sessionsBefore = engine.sessionCount
         applyThresholds()
-        engine.onForeground(pkg, monitored = pkg in settings.monitoredPackages, now = now)
+        engine.onForeground(pkg, monitored = monitored, now = now)
         if (engine.foregroundPackage != previous) recordUsage(now, engine.foregroundPackage)
 
         when {
@@ -135,6 +147,29 @@ class DoomScrollService : AccessibilityService() {
             !engine.isActive && wasActive -> onLeftFeeds(now)
         }
         if (engine.sessionCount != sessionsBefore) onNewSession(pkg)
+    }
+
+    /**
+     * A watched app was opened during a break: show the countdown instead of the
+     * feed. Time on the break screen doesn't count as feed time.
+     */
+    private fun coverWithBreak(pkg: String) {
+        leaveMonitoredApps()
+        overlay.showBreak(
+            pkg = pkg,
+            endsAtElapsed = breakTimer.endsAtMs,
+            onGoHome = { performGlobalAction(GLOBAL_ACTION_HOME) },
+            onOpenAnyway = {
+                breakTimer.cancel()
+                onForegroundChanged(pkg, SystemClock.elapsedRealtime())
+            },
+            // Break ran out while they waited on the screen: let them in.
+            onFinished = { onForegroundChanged(pkg, SystemClock.elapsedRealtime()) },
+        )
+    }
+
+    private fun startBreak() {
+        breakTimer.start(SystemClock.elapsedRealtime(), settings.strictness.breakMs)
     }
 
     /** A fresh visit to a watched app (not a quick return to an ongoing session). */
@@ -166,6 +201,11 @@ class DoomScrollService : AccessibilityService() {
         if (wasActive) onLeftFeeds(now)
     }
 
+    private fun onScreenOff() {
+        leaveMonitoredApps()
+        if (::overlay.isInitialized) overlay.dismiss()
+    }
+
     /** The user is no longer in any monitored app. */
     private fun onLeftFeeds(now: Long) {
         stopTicking()
@@ -174,6 +214,9 @@ class DoomScrollService : AccessibilityService() {
             // Leaving soon after a nudge counts as the nudge working.
             val counted = o.level != InterventionLevel.NUDGE || now - o.shownAt <= NUDGE_LEFT_WINDOW_MS
             closeOpen(if (counted) Outcome.LEFT else Outcome.IGNORED)
+            // Pressing Home/Recents on a pause or intention screen is leaving too,
+            // so it earns a break; otherwise it'd be a way around the "Leave" button.
+            if (o.level != InterventionLevel.NUDGE) startBreak()
         }
     }
 
@@ -225,6 +268,7 @@ class DoomScrollService : AccessibilityService() {
         when (result) {
             OverlayResult.Left -> {
                 closeOpen(Outcome.LEFT)
+                startBreak()
                 performGlobalAction(GLOBAL_ACTION_HOME)
             }
             is OverlayResult.Continued -> closeOpen(Outcome.CONTINUED, result.reason)

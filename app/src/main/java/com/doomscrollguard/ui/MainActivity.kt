@@ -3,6 +3,7 @@ package com.doomscrollguard.ui
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -36,6 +37,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.doomscrollguard.DoomScrollApp
 import com.doomscrollguard.data.Settings as AppSettings
 import com.doomscrollguard.data.StatsSummary
+import com.doomscrollguard.engine.Strictness
 import com.doomscrollguard.service.ServiceStatus
 import com.doomscrollguard.ui.home.AppsSection
 import com.doomscrollguard.ui.home.BatteryHelpCard
@@ -47,9 +49,11 @@ import com.doomscrollguard.ui.home.RestrictedSettingsHelp
 import com.doomscrollguard.ui.home.SectionCard
 import com.doomscrollguard.ui.home.StatsSection
 import com.doomscrollguard.ui.home.StatusCard
+import com.doomscrollguard.ui.home.StrictnessSection
 import com.doomscrollguard.ui.home.ToggleRow
 import com.doomscrollguard.ui.home.openAccessibilitySettings
 import com.doomscrollguard.ui.onboarding.OnboardingScreen
+import com.doomscrollguard.ui.overlay.BreakScreen
 import com.doomscrollguard.ui.overlay.IntentionScreen
 import com.doomscrollguard.ui.overlay.InterventionCopy
 import com.doomscrollguard.ui.overlay.MindfulOpenScreen
@@ -124,6 +128,8 @@ private fun HomeScreen(app: DoomScrollApp, settings: AppSettings) {
 
         StatsSection(summary, settings.dailyGoalMinutes)
 
+        StrictnessSection(settings.strictness) { scope.launch { repo.setStrictness(it) } }
+
         HowItWorksSection(
             settings = settings,
             adaptiveFactor = summary?.adaptiveFactor ?: 1.0,
@@ -180,7 +186,7 @@ private fun HomeScreen(app: DoomScrollApp, settings: AppSettings) {
         )
     }
 
-    preview?.let { PreviewDialog(it, onDismiss = { preview = null }) }
+    preview?.let { PreviewDialog(it, settings.strictness, onDismiss = { preview = null }) }
 }
 
 private fun adaptiveSubtitle(enabled: Boolean, summary: StatsSummary?): String {
@@ -193,7 +199,7 @@ private fun adaptiveSubtitle(enabled: Boolean, summary: StatsSummary?): String {
 }
 
 @Composable
-private fun PreviewDialog(preview: HowItWorksPreview, onDismiss: () -> Unit) {
+private fun PreviewDialog(preview: HowItWorksPreview, strictness: Strictness, onDismiss: () -> Unit) {
     val sample = InterventionCopy(
         appLabel = "Instagram",
         duration = "12 min",
@@ -208,6 +214,14 @@ private fun PreviewDialog(preview: HowItWorksPreview, onDismiss: () -> Unit) {
         DoomScrollGuardTheme(darkTheme = true) {
             when (preview) {
                 HowItWorksPreview.OPENING_QUESTION -> MindfulOpenScreen("Instagram") { onDismiss() }
+                HowItWorksPreview.BREAK -> BreakScreen(
+                    appLabel = "Instagram",
+                    endsAtElapsed = remember { SystemClock.elapsedRealtime() + strictness.breakMs },
+                    skipAfterSeconds = strictness.breakSkipAfterSeconds?.let { 3 },
+                    onGoHome = onDismiss,
+                    onOpenAnyway = onDismiss,
+                    onFinished = onDismiss,
+                )
                 HowItWorksPreview.NUDGE -> NudgeCard(sample, onDismiss = onDismiss)
                 HowItWorksPreview.PAUSE -> PauseScreen(
                     copy = sample,
@@ -218,6 +232,7 @@ private fun PreviewDialog(preview: HowItWorksPreview, onDismiss: () -> Unit) {
                 HowItWorksPreview.INTENTION -> IntentionScreen(
                     copy = sample,
                     lockSeconds = 3,
+                    minWords = strictness.intentionMinWords,
                     onLeave = onDismiss,
                     onContinue = { onDismiss() },
                 )

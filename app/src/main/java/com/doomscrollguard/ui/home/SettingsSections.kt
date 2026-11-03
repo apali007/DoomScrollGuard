@@ -1,6 +1,16 @@
 package com.doomscrollguard.ui.home
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.RadioButton
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -22,6 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import com.doomscrollguard.data.InstalledApp
 import com.doomscrollguard.data.MonitoredApps
 import com.doomscrollguard.data.Settings
+import com.doomscrollguard.engine.Strictness
+import com.doomscrollguard.ui.overlay.formatDuration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -133,4 +145,42 @@ fun formatHour(hour: Int): String = when {
     hour < 12 -> "$hour AM"
     hour == 12 -> "12 PM"
     else -> "${hour - 12} PM"
+}
+
+@Composable
+fun StrictnessSection(selected: Strictness, onSelect: (Strictness) -> Unit) {
+    SectionCard(title = "Strictness") {
+        Strictness.entries.forEach { level ->
+            val isSelected = level == selected
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(
+                        if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                        else Color.Transparent,
+                    )
+                    .selectable(selected = isSelected, role = Role.RadioButton, onClick = { onSelect(level) })
+                    .padding(vertical = 8.dp, horizontal = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(selected = isSelected, onClick = null)
+                Column(Modifier.padding(start = 8.dp)) {
+                    Text("${level.emoji} ${level.label}", fontWeight = FontWeight.SemiBold)
+                    Text(
+                        strictnessSummary(level),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+    }
+}
+
+fun strictnessSummary(level: Strictness): String {
+    val t = level.thresholds
+    val skip = level.breakSkipAfterSeconds?.let { "skippable after $it sec" } ?: "can't be skipped"
+    return "Nudge after ${formatDuration(t.nudgeAfterMs)}, reminders every ${formatDuration(t.escalationGapMs)}. " +
+        "Leaving starts a ${formatDuration(level.breakMs)} break ($skip)."
 }

@@ -14,16 +14,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.doomscrollguard.data.Settings
-import com.doomscrollguard.engine.Thresholds
-import com.doomscrollguard.ui.overlay.INTENTION_LOCK_SECONDS
-import com.doomscrollguard.ui.overlay.INTENTION_MIN_WORDS
-import com.doomscrollguard.ui.overlay.PAUSE_LOCK_SECONDS
 import com.doomscrollguard.ui.overlay.formatDuration
 import java.time.LocalTime
 import kotlin.math.roundToInt
 
 /** Which screen the user wants to see from the "How it works" list. */
-enum class HowItWorksPreview { NUDGE, PAUSE, INTENTION, OPENING_QUESTION }
+enum class HowItWorksPreview { NUDGE, PAUSE, INTENTION, BREAK, OPENING_QUESTION }
 
 /**
  * Explains every reminder and exactly when it appears, using the thresholds
@@ -36,15 +32,17 @@ fun HowItWorksSection(
     onPreview: (HowItWorksPreview) -> Unit,
 ) {
     val hour = LocalTime.now().hour
+    val rules = settings.strictness
     val now = settings.thresholdsAt(hour, adaptiveFactor)
-    val normal = Thresholds.DEFAULT
+    val normal = rules.thresholds
     val nudge = formatDuration(now.nudgeAfterMs)
     val gap = formatDuration(now.escalationGapMs)
     val reset = formatDuration(now.sessionResetMs)
 
     SectionCard(title = "How it works") {
         Text(
-            "Only time in your watched apps counts. Reminders get stronger the longer you keep scrolling.",
+            "You're on ${rules.emoji} ${rules.label}. Only time in your watched apps counts. " +
+                "Reminders get stronger the longer you keep scrolling.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -60,7 +58,7 @@ fun HowItWorksSection(
             emoji = "🫁",
             title = "2. Pause",
             whenText = "$gap after the nudge",
-            body = "A full-screen breathing pause. \"Continue\" unlocks after $PAUSE_LOCK_SECONDS seconds, " +
+            body = "A full-screen breathing pause. \"Continue\" unlocks after ${rules.pauseLockSeconds} seconds, " +
                 "or tap \"Leave\" to go home.",
             onSee = { onPreview(HowItWorksPreview.PAUSE) },
         )
@@ -68,9 +66,19 @@ fun HowItWorksSection(
             emoji = "🧭",
             title = "3. Intention",
             whenText = "$gap after the pause, then every $gap",
-            body = "Write at least $INTENTION_MIN_WORDS words about what you're looking for. " +
-                "\"Continue\" unlocks after $INTENTION_LOCK_SECONDS seconds.",
+            body = "Write at least ${rules.intentionMinWords} words about what you're looking for. " +
+                "\"Continue\" unlocks after ${rules.intentionLockSeconds} seconds.",
             onSee = { onPreview(HowItWorksPreview.INTENTION) },
+        )
+        Step(
+            emoji = "🌿",
+            title = "Break",
+            whenText = "When you leave from a pause or intention",
+            body = "Leaving with \"Leave\", Home or Recents locks your watched apps for " +
+                "${formatDuration(rules.breakMs)}. Reopening one shows a countdown instead of the feed. " +
+                (rules.breakSkipAfterSeconds?.let { "\"Open anyway\" appears after $it seconds." }
+                    ?: "On Strict it can't be skipped."),
+            onSee = { onPreview(HowItWorksPreview.BREAK) },
         )
         Step(
             emoji = "👋",
@@ -98,7 +106,7 @@ fun HowItWorksSection(
             Text(
                 "⚡ Reminders are coming sooner than usual right now because " +
                     reasons.joinToString(" and ") + ". Normally the nudge comes after " +
-                    "${formatDuration(normal.nudgeAfterMs)}.",
+                    "${formatDuration(normal.nudgeAfterMs)} on ${rules.label}.",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
             )

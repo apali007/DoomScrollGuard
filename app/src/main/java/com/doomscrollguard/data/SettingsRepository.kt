@@ -7,14 +7,17 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.doomscrollguard.engine.Strictness
 import com.doomscrollguard.engine.Thresholds
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 data class Settings(
     val monitoredPackages: Set<String> = emptySet(),
+    val strictness: Strictness = Strictness.BALANCED,
     val disclosureAccepted: Boolean = false,
     val dailyGoalMinutes: Int = 30,
     val bedtimeEnabled: Boolean = false,
@@ -40,7 +43,7 @@ data class Settings(
 
     /** [adaptiveFactor] comes from [com.doomscrollguard.engine.Adaptive]; ignored if adaptation is off. */
     fun thresholdsAt(hour: Int, adaptiveFactor: Double = 1.0): Thresholds {
-        val base = Thresholds.DEFAULT
+        val base = strictness.thresholds
         val timed = if (isBedtime(hour)) base.bedtime() else base
         return if (adaptiveEnabled) timed.scaled(adaptiveFactor) else timed
     }
@@ -54,6 +57,7 @@ class SettingsRepository(private val context: Context) {
         val defaults = Settings()
         Settings(
             monitoredPackages = prefs[MONITORED] ?: defaults.monitoredPackages,
+            strictness = Strictness.fromName(prefs[STRICTNESS]),
             disclosureAccepted = prefs[DISCLOSURE_ACCEPTED] ?: defaults.disclosureAccepted,
             dailyGoalMinutes = prefs[DAILY_GOAL] ?: defaults.dailyGoalMinutes,
             bedtimeEnabled = prefs[BEDTIME_ENABLED] ?: defaults.bedtimeEnabled,
@@ -93,6 +97,8 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
+    suspend fun setStrictness(strictness: Strictness) = edit { it[STRICTNESS] = strictness.name }
+
     suspend fun acceptDisclosure() = edit { prefs ->
         prefs[DISCLOSURE_ACCEPTED] = true
         // Accepting mid-onboarding must not count as "onboarding done" via the
@@ -130,6 +136,7 @@ class SettingsRepository(private val context: Context) {
 
     private companion object {
         val MONITORED = stringSetPreferencesKey("monitored_packages")
+        val STRICTNESS = stringPreferencesKey("strictness")
         val DISCLOSURE_ACCEPTED = booleanPreferencesKey("disclosure_accepted")
         val DAILY_GOAL = intPreferencesKey("daily_goal_minutes")
         val BEDTIME_ENABLED = booleanPreferencesKey("bedtime_enabled")
