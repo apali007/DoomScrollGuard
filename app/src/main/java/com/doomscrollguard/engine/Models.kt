@@ -14,7 +14,10 @@ data class Thresholds(
     val nudgeAfterGestures: Int,
     /** After an intervention, wait this long before escalating / repeating. */
     val escalationGapMs: Long,
-    /** Being away from all monitored apps this long ends the session. */
+    /**
+     * Being away from all monitored apps this long ends the session. Longer on
+     * stricter levels so stepping away briefly after a nudge isn't a free reset.
+     */
     val sessionResetMs: Long,
 ) {
     companion object {
@@ -22,7 +25,7 @@ data class Thresholds(
             nudgeAfterMs = 10 * MINUTE,
             nudgeAfterGestures = 150,
             escalationGapMs = 5 * MINUTE,
-            sessionResetMs = 2 * MINUTE,
+            sessionResetMs = 5 * MINUTE,
         )
     }
 }

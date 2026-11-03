@@ -14,6 +14,7 @@ class StrictnessTest {
             assertTrue(msg, looser.thresholds.nudgeAfterMs > stricter.thresholds.nudgeAfterMs)
             assertTrue(msg, looser.thresholds.nudgeAfterGestures > stricter.thresholds.nudgeAfterGestures)
             assertTrue(msg, looser.thresholds.escalationGapMs >= stricter.thresholds.escalationGapMs)
+            assertTrue(msg, looser.thresholds.sessionResetMs < stricter.thresholds.sessionResetMs)
             assertTrue(msg, looser.pauseLockSeconds < stricter.pauseLockSeconds)
             assertTrue(msg, looser.intentionLockSeconds < stricter.intentionLockSeconds)
             assertTrue(msg, looser.intentionMinWords < stricter.intentionMinWords)
@@ -34,6 +35,13 @@ class StrictnessTest {
     fun hardcoreTiming() {
         assertEquals(3 * MINUTE, Strictness.HARDCORE.thresholds.nudgeAfterMs)
         assertEquals(2 * MINUTE, Strictness.HARDCORE.thresholds.escalationGapMs)
+    }
+
+    @Test
+    fun resetIsLongerThanBreakOnStrictLevels() {
+        // Coming back after a break continues the escalation instead of starting over.
+        assertTrue(Strictness.STRICT.thresholds.sessionResetMs > Strictness.STRICT.breakMs)
+        assertTrue(Strictness.HARDCORE.thresholds.sessionResetMs > Strictness.HARDCORE.breakMs)
     }
 
     @Test
