@@ -133,6 +133,28 @@ class SessionEngineTest {
     }
 
     @Test
+    fun sessionCountIncrementsOnlyForFreshSessions() {
+        val e = engine()
+        e.onForeground(insta, monitored = true, now = 0)
+        assertEquals(1, e.sessionCount)
+        e.onForeground(launcher, monitored = false, now = MINUTE)
+        e.onForeground(insta, monitored = true, now = MINUTE + 30 * SECOND)
+        assertEquals(1, e.sessionCount) // quick return: same session
+        e.onForeground(launcher, monitored = false, now = 2 * MINUTE)
+        e.onForeground(insta, monitored = true, now = 5 * MINUTE)
+        assertEquals(2, e.sessionCount)
+    }
+
+    @Test
+    fun justBrowsingMakesFirstNudgeSooner() {
+        val e = engine()
+        e.onForeground(insta, monitored = true, now = 0)
+        e.scaleCurrentSessionNudge(0.5)
+        assertNull(e.tick(now = 5 * MINUTE - 1))
+        assertEquals(InterventionLevel.NUDGE, e.tick(now = 5 * MINUTE)?.level)
+    }
+
+    @Test
     fun thresholdsCanBeSwappedLive() {
         val e = engine()
         e.onForeground(insta, monitored = true, now = 0)

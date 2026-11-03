@@ -54,6 +54,7 @@ import com.doomscrollguard.ui.home.openAccessibilitySettings
 import com.doomscrollguard.ui.onboarding.OnboardingScreen
 import com.doomscrollguard.ui.overlay.BreakScreen
 import com.doomscrollguard.ui.overlay.IntentionScreen
+import com.doomscrollguard.ui.overlay.MindfulOpenScreen
 import com.doomscrollguard.ui.overlay.InterventionCopy
 import com.doomscrollguard.ui.overlay.NudgeCard
 import com.doomscrollguard.ui.overlay.PauseScreen
@@ -181,6 +182,7 @@ private fun PreviewDialog(preview: HowItWorksPreview, strictness: Strictness, on
     ) {
         DoomScrollGuardTheme(darkTheme = true) {
             when (preview) {
+                HowItWorksPreview.OPENING_QUESTION -> MindfulOpenScreen("Instagram") { onDismiss() }
                 HowItWorksPreview.BREAK -> BreakScreen(
                     appLabel = "Instagram",
                     endsAtElapsed = remember { SystemClock.elapsedRealtime() + strictness.breakMs },

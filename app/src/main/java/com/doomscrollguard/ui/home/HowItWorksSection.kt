@@ -17,7 +17,7 @@ import com.doomscrollguard.data.Settings
 import com.doomscrollguard.ui.overlay.formatDuration
 
 /** Which screen the user wants to see from the "How it works" list. */
-enum class HowItWorksPreview { NUDGE, PAUSE, INTENTION, BREAK }
+enum class HowItWorksPreview { OPENING_QUESTION, NUDGE, PAUSE, INTENTION, BREAK }
 
 /**
  * Explains every reminder and exactly when it appears for the chosen
@@ -42,6 +42,14 @@ fun HowItWorksSection(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
+        Step(
+            emoji = "👋",
+            title = "Opening question",
+            whenText = "Every time you open a watched app after $reset or more away",
+            body = "Asks what brings you there. \"Just browsing\" makes the first nudge come twice as fast; " +
+                "\"Never mind\" takes you home.",
+            onSee = { onPreview(HowItWorksPreview.OPENING_QUESTION) },
+        )
         Step(
             emoji = "⏳",
             title = "1. Nudge",

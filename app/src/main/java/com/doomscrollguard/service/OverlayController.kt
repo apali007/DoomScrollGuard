@@ -15,6 +15,8 @@ import com.doomscrollguard.engine.Strictness
 import androidx.compose.runtime.Composable
 import com.doomscrollguard.ui.overlay.BreakScreen
 import com.doomscrollguard.ui.overlay.IntentionScreen
+import com.doomscrollguard.ui.overlay.MindfulChoice
+import com.doomscrollguard.ui.overlay.MindfulOpenScreen
 import com.doomscrollguard.ui.overlay.InterventionCopy
 import com.doomscrollguard.ui.overlay.NudgeCard
 import com.doomscrollguard.ui.overlay.PauseScreen
@@ -40,7 +42,7 @@ class OverlayController(private val service: AccessibilityService) {
     private class Shown(
         val view: ComposeView,
         val owner: OverlayLifecycleOwner,
-        /** Null for screens that aren't interventions (the break screen). */
+        /** Null for screens that aren't interventions (opening question, break). */
         val level: InterventionLevel?,
         /** Higher replaces lower; equal or lower never replaces what's on screen. */
         val priority: Int,
@@ -100,6 +102,20 @@ class OverlayController(private val service: AccessibilityService) {
             val r = Runnable { finish(OverlayResult.Dismissed) }
             autoDismiss = r
             handler.postDelayed(r, NUDGE_VISIBLE_MS)
+        }
+        return true
+    }
+
+    /** Asks why the user is opening [pkg]. Skipped if anything else is on screen. */
+    fun showMindfulOpen(pkg: String, onChoice: (MindfulChoice) -> Unit): Boolean {
+        if (shown != null) return false
+        val label = MonitoredApps.labelFor(pkg, service.packageManager)
+        val params = layoutParamsFor(InterventionLevel.PAUSE) // full screen, not focusable
+        addOverlay(level = null, priority = PRIORITY_MINDFUL, params = params) {
+            MindfulOpenScreen(label) { choice ->
+                dismiss()
+                onChoice(choice)
+            }
         }
         return true
     }
@@ -205,6 +221,7 @@ class OverlayController(private val service: AccessibilityService) {
 
     private companion object {
         const val NUDGE_VISIBLE_MS = 8_000L
+        const val PRIORITY_MINDFUL = 0
         const val PRIORITY_NUDGE = 1 // PAUSE = 2, INTENTION = 3
         const val PRIORITY_BREAK = 10
     }

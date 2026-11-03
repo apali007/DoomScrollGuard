@@ -18,6 +18,7 @@ import com.doomscrollguard.engine.BreakTimer
 import com.doomscrollguard.engine.Intervention
 import com.doomscrollguard.engine.InterventionLevel
 import com.doomscrollguard.engine.SessionEngine
+import com.doomscrollguard.ui.overlay.MindfulChoice
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -132,12 +133,25 @@ class DoomScrollService : AccessibilityService() {
 
         val wasActive = engine.isActive
         val previous = engine.foregroundPackage
+        val sessionsBefore = engine.sessionCount
         engine.onForeground(pkg, monitored = monitored, now = now)
         if (engine.foregroundPackage != previous) recordUsage(now, engine.foregroundPackage)
 
         when {
             engine.isActive && !wasActive -> startTicking()
             !engine.isActive && wasActive -> onLeftFeeds(now)
+        }
+        if (engine.sessionCount != sessionsBefore) askWhyOpening(pkg)
+    }
+
+    /** On every fresh visit to a watched app (not a quick return), ask what they came for. */
+    private fun askWhyOpening(pkg: String) {
+        overlay.showMindfulOpen(pkg) { choice ->
+            when (choice) {
+                MindfulChoice.PURPOSE -> Unit
+                MindfulChoice.BROWSING -> engine.scaleCurrentSessionNudge(JUST_BROWSING_NUDGE_SCALE)
+                MindfulChoice.NEVER_MIND -> performGlobalAction(GLOBAL_ACTION_HOME)
+            }
         }
     }
 
@@ -292,5 +306,7 @@ class DoomScrollService : AccessibilityService() {
         const val FLUSH_EVERY_TICKS = 60
         /** Leaving within this long after a nudge counts as "left". */
         const val NUDGE_LEFT_WINDOW_MS = 60_000L
+        /** "Just browsing" on the opening question makes the first nudge come twice as fast. */
+        const val JUST_BROWSING_NUDGE_SCALE = 0.5
     }
 }
