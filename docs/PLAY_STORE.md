@@ -41,7 +41,7 @@ Upload file: `app/build/outputs/bundle/release/app-release.aab` (build with `./g
 > FEATURES
 > • Works with Instagram, YouTube, TikTok, Facebook, X, Reddit, Snapchat, or any app you choose
 > • Daily goal, streaks, and a 7-day chart of your feed time
-> • Four strictness levels, from Gentle to Hardcore (reminders after just 1 minute)
+> • Four strictness levels, from Gentle to Hardcore (reminders after just 3 minutes)
 > • A quick "What brings you here?" check when you open a feed
 > • Leaving actually sticks: a short break locks your feeds so you can't just reopen them
 > • Evening recap of your day

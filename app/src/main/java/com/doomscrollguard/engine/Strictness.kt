@@ -60,9 +60,9 @@ enum class Strictness(
         label = "Hardcore",
         emoji = "🔥",
         thresholds = Thresholds(
-            nudgeAfterMs = 1 * MINUTE,
-            nudgeAfterGestures = 20,
-            escalationGapMs = 1 * MINUTE,
+            nudgeAfterMs = 3 * MINUTE,
+            nudgeAfterGestures = 45,
+            escalationGapMs = 2 * MINUTE,
             sessionResetMs = 2 * MINUTE,
         ),
         pauseLockSeconds = 30,

@@ -31,8 +31,9 @@ class StrictnessTest {
     }
 
     @Test
-    fun hardcoreStartsAfterOneMinute() {
-        assertEquals(MINUTE, Strictness.HARDCORE.thresholds.nudgeAfterMs)
+    fun hardcoreTiming() {
+        assertEquals(3 * MINUTE, Strictness.HARDCORE.thresholds.nudgeAfterMs)
+        assertEquals(2 * MINUTE, Strictness.HARDCORE.thresholds.escalationGapMs)
     }
 
     @Test

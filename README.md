@@ -18,8 +18,8 @@ shows a countdown instead of the feed.
 
 | | 🌱 Gentle | ⚖️ Balanced (default) | 🔒 Strict | 🔥 Hardcore |
 |---|---|---|---|---|
-| First nudge | 15 min / 200 swipes | 10 min / 150 swipes | 5 min / 75 swipes | 1 min / 20 swipes |
-| Next reminders | every 5 min | every 5 min | every 3 min | every 1 min |
+| First nudge | 15 min / 200 swipes | 10 min / 150 swipes | 5 min / 75 swipes | 3 min / 45 swipes |
+| Next reminders | every 5 min | every 5 min | every 3 min | every 2 min |
 | Pause lock | 5 s | 10 s | 20 s | 30 s |
 | Intention | 2 words, 10 s | 3 words, 15 s | 5 words, 30 s | 7 words, 45 s |
 | Break after leaving | 2 min (skip after 10 s) | 5 min (skip after 30 s) | 5 min (skip after 1 min) | 5 min (skip after 2 min) |
