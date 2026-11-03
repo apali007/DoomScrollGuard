@@ -203,7 +203,8 @@ class OverlayController(private val service: AccessibilityService) {
             flags,
             PixelFormat.TRANSLUCENT,
         ).apply {
-            gravity = Gravity.TOP
+            // The nudge card floats in the middle of the screen; full-screen overlays fill it.
+            gravity = if (fullScreen) Gravity.TOP else Gravity.CENTER
             softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         }
     }

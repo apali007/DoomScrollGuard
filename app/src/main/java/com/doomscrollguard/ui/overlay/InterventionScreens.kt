@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -64,14 +63,13 @@ data class InterventionCopy(
     val todayTotal: String? = null,
 )
 
-/** Level 1: a gentle card at the top of the screen. The app stays usable underneath. */
+/** Level 1: a gentle card in the middle of the screen. The app stays usable around it. */
 @Composable
 fun NudgeCard(copy: InterventionCopy, onDismiss: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .statusBarsPadding()
-            .padding(12.dp),
+            .padding(16.dp),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = CalmDeep),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),

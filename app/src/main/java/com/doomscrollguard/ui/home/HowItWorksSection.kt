@@ -55,7 +55,7 @@ fun HowItWorksSection(
             emoji = "⏳",
             title = "1. Nudge",
             whenText = "After $nudge of scrolling (or ${now.nudgeAfterGestures} swipes)",
-            body = "A small card at the top shows how long you've been scrolling. It disappears on its own.",
+            body = "A card in the middle of the screen shows how long you've been scrolling. It disappears on its own.",
             onSee = { onPreview(HowItWorksPreview.NUDGE) },
         )
         Step(

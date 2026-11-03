@@ -6,7 +6,7 @@ Instead of hard blocks (which people uninstall), it escalates:
 
 | Level | When (defaults) | What happens |
 |---|---|---|
-| ⏳ Nudge | 10 min or 150 swipes | Small card at the top: time, swipes, distance scrolled |
+| ⏳ Nudge | 10 min or 150 swipes | Card in the middle of the screen: time, swipes, distance scrolled |
 | 🫁 Pause | +5 min | Full-screen breathing pause; "Continue" locked for 10 s |
 | 🧭 Intention | +5 min, then every 5 min | Write 3+ words about why you're continuing (15 s lock) |
 
