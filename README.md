@@ -1,5 +1,7 @@
 # DoomScroll Guard
 
+> 📱 **Building the iOS version?** Read [docs/IOS_SPEC.md](docs/IOS_SPEC.md) first.
+
 An Android app that notices when you've been doomscrolling and gently helps you stop.
 
 Instead of hard blocks (which people uninstall), it escalates:
@@ -78,6 +80,8 @@ The app shows these steps.
 | `work/` | Daily recap + "protection is off" health check |
 
 ## Docs
+- [**iOS build spec**](docs/IOS_SPEC.md): start here if you're building the iPhone version
+- [Product decisions](docs/DECISIONS.md): why the app works the way it does
 - [Privacy policy](docs/PRIVACY_POLICY.md)
 - [Play Store submission kit](docs/PLAY_STORE.md)
 - [Beta testing guide](docs/BETA_TESTING.md)
