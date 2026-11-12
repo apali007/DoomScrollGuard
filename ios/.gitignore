@@ -1,0 +1,25 @@
+# Xcode user state
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+DerivedData/
+build/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Signing material: never commit
+*.p12
+*.cer
+*.mobileprovision
+*.provisionprofile
+
+# Archives and exports
+*.ipa
+*.xcarchive
+*.dSYM.zip
+*.dSYM
+
+.DS_Store

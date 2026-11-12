@@ -69,7 +69,7 @@ the device.
 - Bump `versionCode`/`versionName` in `app/build.gradle.kts` for each build you share.
 
 ## iOS
-- See `docs/IOS_SPEC.md`, and `ios/CLAUDE.md` once it exists.
+- **Start with `ios/CLAUDE.md`** (layout, identifiers, commands, iOS rules), then `docs/IOS_SPEC.md`.
 - Needs a real iPhone; Screen Time doesn't work properly in the Simulator.
 - The Apple Developer account belongs to the product owner; the developer is added to the team.
 - Verify Screen Time API behaviour against current Apple documentation. The spec was written
