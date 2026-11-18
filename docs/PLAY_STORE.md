@@ -2,6 +2,8 @@
 
 Everything you need to publish, in the order Play Console asks for it.
 Upload file: `app/build/outputs/bundle/release/app-release.aab` (build with `./gradlew bundleRelease`).
+The app targets Android 16 (API 36), which meets Play's target-SDK rule as of late 2026. Play
+raises the rule every year (usually by 31 August); bump `targetSdk` when Play Console warns.
 
 > **Heads-up on review:** Google reviews every app that uses the Accessibility API closely.
 > Apps that aren't accessibility tools must explain their use, show a prominent in-app disclosure,
@@ -31,9 +33,11 @@ Upload file: `app/build/outputs/bundle/release/app-release.aab` (build with `./g
 > and helps you stop, without blocking anything.
 >
 > HOW IT WORKS
-> ⏳ A gentle nudge after 10 minutes of scrolling
+> 👋 A quick "What brings you here?" when you open a feed
+> ⏳ A gentle nudge after a few minutes of scrolling
 > 🫁 A full-screen breathing pause if you keep going
 > 🧭 Then you write down what you're looking for before you continue
+> 🌿 Leave, and a short break keeps you from jumping straight back in
 >
 > You're always in control. You can keep scrolling, it just takes a moment of thought. That
 > moment is often all it takes to break the autopilot.
@@ -41,9 +45,13 @@ Upload file: `app/build/outputs/bundle/release/app-release.aab` (build with `./g
 > FEATURES
 > • Works with Instagram, YouTube, TikTok, Facebook, X, Reddit, Snapchat, or any app you choose
 > • Daily goal, streaks, and a 7-day chart of your feed time
-> • Four strictness levels, from Gentle to Hardcore (reminders after just 3 minutes)
-> • A quick "What brings you here?" check when you open a feed
-> • Leaving actually sticks: a short break locks your feeds so you can't just reopen them
+> • Four strictness levels:
+>   🌱 Gentle: first nudge after 15 minutes
+>   ⚖️ Balanced: after 10 minutes
+>   🔒 Strict: after 5 minutes
+>   🔥 Hardcore: after 3 minutes
+> • A daily goal with teeth: once you pass it, every visit gets a nudge after 1 minute
+> • "How it works" shows exactly when each reminder appears, with a live preview of each
 > • Evening recap of your day
 >
 > PRIVATE BY DESIGN
@@ -59,8 +67,8 @@ Upload file: `app/build/outputs/bundle/release/app-release.aab` (build with `./g
       right-click `res` → New → Image Asset, or screenshot the launcher icon)
 - [ ] Feature graphic 1024×500 PNG
 - [ ] 2–8 phone screenshots. Suggested: onboarding welcome, home stats, nudge card over a feed,
-      breathing pause, intention screen, break countdown, strictness levels. (Use the in-app **Preview** buttons to
-      capture the overlay screens without needing a real feed.)
+      breathing pause, intention screen, break countdown, strictness levels. (Home → **How it works** →
+      **See it** shows each reminder screen without needing a real feed.)
 
 ## 3. App content
 
@@ -70,9 +78,10 @@ Upload file: `app/build/outputs/bundle/release/app-release.aab` (build with `./g
 
 **App access:** All functionality available without login. Tell reviewers:
 > No login required. To test: complete onboarding and enable DoomScroll Guard in Settings →
-> Accessibility. Every reminder screen can be seen instantly via the "Preview" buttons on the
-> home screen. For the live flow, open YouTube and keep scrolling: a nudge appears after
-> 150 swipes or 10 minutes, a full-screen pause 5 minutes later, then the intention screen.
+> Accessibility. Every reminder screen can be seen instantly: Home → "How it works" → "See it".
+> For the live flow, choose Hardcore, add YouTube under "Apps to watch", open it and keep
+> scrolling: a nudge appears after 3 minutes (or 45 swipes), a full-screen pause 2 minutes
+> later, then the intention screen. Tapping "Leave" starts a 5-minute break.
 
 **Content rating:** Complete the questionnaire. No violence, user content, gambling, etc.
 Expected rating: Everyone.
@@ -98,12 +107,13 @@ Expected rating: Everyone.
 > configured with canRetrieveWindowContent=false and cannot read screen content. When the user
 > exceeds their chosen limits, the service displays a reminder overlay
 > (TYPE_ACCESSIBILITY_OVERLAY) and can return the user to the home screen if they choose
-> "Leave". The app has no INTERNET permission; no data leaves the device. Users see a prominent
+> "Leave". After leaving, reopening a watched app during a short break shows a countdown
+> overlay; the user can always switch the service off. The app has no INTERNET permission; no data leaves the device. Users see a prominent
 > disclosure and must tap "I agree" during onboarding before being sent to enable the service.
 - **Video:** Play requires a short video showing the disclosure and the feature. Record the
   phone screen (Quick Settings → Screen record): onboarding privacy step → "I agree" → enabling
-  the service → scrolling YouTube until the nudge appears → Preview buttons for the pause and
-  intention screens (or keep scrolling and trim the video). Upload to YouTube as
+  the service → scrolling YouTube until the nudge appears (Hardcore makes this quick) → Home →
+  "How it works" → "See it" for the pause, intention and break screens. Upload to YouTube as
   unlisted and paste the link.
 
 **Health apps declaration** (if asked because of the Health & Fitness category): not a medical

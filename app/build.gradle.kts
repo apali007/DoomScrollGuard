@@ -15,14 +15,14 @@ val keystoreProps = Properties().apply {
 
 android {
     namespace = "com.doomscrollguard"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.doomscrollguard"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 12
-        versionName = "1.4.1"
+        targetSdk = 36
+        versionCode = 13
+        versionName = "1.5.0"
     }
 
     signingConfigs {
