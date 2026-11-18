@@ -1,6 +1,6 @@
 # Doom Breaker: Privacy Policy
 
-_Last updated: November 1, 2026_
+_Last updated: November 18, 2026_
 
 Doom Breaker helps you spend less time scrolling social media feeds. It's designed so that
 **none of your data ever leaves your phone**.
