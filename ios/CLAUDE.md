@@ -1,4 +1,4 @@
-# DoomScroll Guard: iOS
+# Doom Breaker: iOS
 
 Native **Swift + SwiftUI** app built on Apple's **Screen Time API** (FamilyControls,
 ManagedSettings, DeviceActivity). It's the iOS version of the Android app in the repo root.

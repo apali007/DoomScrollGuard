@@ -7,7 +7,7 @@ raises the rule every year (usually by 31 August); bump `targetSdk` when Play Co
 
 > **Heads-up on review:** Google reviews every app that uses the Accessibility API closely.
 > Apps that aren't accessibility tools must explain their use, show a prominent in-app disclosure,
-> and get consent first. DoomScroll Guard does all of this (onboarding's "Your privacy" step), but
+> and get consent first. Doom Breaker does all of this (onboarding's "Your privacy" step), but
 > approval isn't guaranteed. Expect questions or a rejection on the first try. Read the current
 > policy before submitting: Play Console Help → "Use of the AccessibilityService API".
 
@@ -23,13 +23,13 @@ raises the rule every year (usually by 31 August); bump `targetSdk` when Play Co
 ## 2. Store listing
 
 **App name** (30 chars max)
-> DoomScroll Guard: Scroll Less
+> Doom Breaker: Stop Doomscrolling
 
 **Short description** (80 chars max)
 > Gentle reminders that help you stop doomscrolling and take your time back.
 
 **Full description**
-> Lost an hour to your feed again? DoomScroll Guard notices when you've been scrolling too long
+> Lost an hour to your feed again? Doom Breaker notices when you've been scrolling too long
 > and helps you stop, without blocking anything.
 >
 > HOW IT WORKS
@@ -55,7 +55,7 @@ raises the rule every year (usually by 31 August); bump `targetSdk` when Play Co
 > • Evening recap of your day
 >
 > PRIVATE BY DESIGN
-> DoomScroll Guard uses Android's Accessibility Service only to see which app is open and that
+> Doom Breaker uses Android's Accessibility Service only to see which app is open and that
 > you're scrolling. It cannot read anything on your screen. It has no internet access, so nothing
 > ever leaves your phone. No accounts, no ads, no tracking.
 
@@ -77,7 +77,7 @@ raises the rule every year (usually by 31 August); bump `targetSdk` when Play Co
 **Ads:** No ads.
 
 **App access:** All functionality available without login. Tell reviewers:
-> No login required. To test: complete onboarding and enable DoomScroll Guard in Settings →
+> No login required. To test: complete onboarding and enable Doom Breaker in Settings →
 > Accessibility. Every reminder screen can be seen instantly: Home → "How it works" → "See it".
 > For the live flow, choose Hardcore, add YouTube under "Apps to watch", open it and keep
 > scrolling: a nudge appears after 3 minutes (or 45 swipes), a full-screen pause 2 minutes
@@ -95,13 +95,13 @@ Expected rating: Everyone.
 | Is all user data encrypted in transit? | Not applicable (no data transmitted) |
 | Do you provide a way for users to request data deletion? | Data is stored only on device; uninstalling or clearing storage deletes it |
 
-> Note: Google defines "collect" as transmitting data off the device. DoomScroll Guard has no
+> Note: Google defines "collect" as transmitting data off the device. Doom Breaker has no
 > internet permission, so the answer is No.
 
 **Accessibility API declaration** (Play Console → App content → Accessibility API):
 - Is your app an accessibility tool? **No**
 - Description of use:
-> DoomScroll Guard is a digital-wellbeing app that helps users reduce compulsive scrolling.
+> Doom Breaker is a digital-wellbeing app that helps users reduce compulsive scrolling.
 > The AccessibilityService listens only for TYPE_WINDOW_STATE_CHANGED (to know which app is in
 > the foreground) and TYPE_VIEW_SCROLLED (to count scrolling in apps the user selected). It is
 > configured with canRetrieveWindowContent=false and cannot read screen content. When the user

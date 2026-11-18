@@ -1,13 +1,13 @@
-# DoomScroll Guard: Privacy Policy
+# Doom Breaker: Privacy Policy
 
 _Last updated: November 1, 2026_
 
-DoomScroll Guard helps you spend less time scrolling social media feeds. It's designed so that
+Doom Breaker helps you spend less time scrolling social media feeds. It's designed so that
 **none of your data ever leaves your phone**.
 
 ## What the app accesses
 
-DoomScroll Guard uses Android's **Accessibility Service API** for one purpose: to notice when you
+Doom Breaker uses Android's **Accessibility Service API** for one purpose: to notice when you
 have been scrolling a feed app for a long time, and to show a reminder on top of that app.
 
 Through the Accessibility Service, the app receives only:
@@ -31,7 +31,7 @@ On your device only:
 
 ## What the app shares
 
-**Nothing.** DoomScroll Guard does not request the Internet permission, so it is technically unable
+**Nothing.** Doom Breaker does not request the Internet permission, so it is technically unable
 to send data anywhere. There are no analytics, ads, trackers, or accounts.
 
 The only time anything leaves the app is if you tap "Steps for my phone" in the battery help
@@ -39,7 +39,7 @@ section, which opens a public web page (dontkillmyapp.com) in your browser.
 
 ## Deleting your data
 
-Uninstall the app, or go to **Settings → Apps → DoomScroll Guard → Storage → Clear storage**.
+Uninstall the app, or go to **Settings → Apps → Doom Breaker → Storage → Clear storage**.
 All data is deleted immediately.
 
 ## Children

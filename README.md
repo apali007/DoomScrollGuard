@@ -1,4 +1,4 @@
-# DoomScroll Guard
+# Doom Breaker
 
 > 📱 **Building the iOS version?** Read [docs/IOS_SPEC.md](docs/IOS_SPEC.md) first.
 

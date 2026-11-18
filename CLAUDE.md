@@ -1,4 +1,7 @@
-# DoomScroll Guard
+# Doom Breaker
+
+(Formerly "DoomScroll Guard". Code identifiers such as the package `com.doomscrollguard` and the
+repo name keep the old name on purpose; only user-facing text says "Doom Breaker".)
 
 A phone app that notices when someone is doomscrolling and helps them stop with **escalating
 friction**, not hard blocks:

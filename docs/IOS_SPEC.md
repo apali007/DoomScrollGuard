@@ -1,4 +1,4 @@
-# DoomScroll Guard for iOS: build spec
+# Doom Breaker for iOS: build spec
 
 This repo is the **Android** app (Kotlin). It's the reference for *what* the iOS app should do,
 not code to port. This document says what to build on iOS, what to adapt, and what to drop
@@ -129,7 +129,7 @@ Legend: ✅ same as Android · 🔁 adapt · ❌ drop
 - **Never mind, close it:** goes home.
 
 **iOS:** use a **Shortcuts personal automation**, the approach used by apps like *one sec*:
-- The user creates an automation "When {App} is opened → run *DoomScroll Guard: Check in*", an
+- The user creates an automation "When {App} is opened → run *Doom Breaker: Check in*", an
   App Intent your app provides. Guide them through it step by step in onboarding, with
   screenshots.
 - The intent opens your app on the question screen.

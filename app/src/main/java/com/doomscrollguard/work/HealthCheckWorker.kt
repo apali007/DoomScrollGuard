@@ -64,7 +64,7 @@ class HealthCheckWorker(context: Context, params: WorkerParameters) : CoroutineW
                 Intent(context, MainActivity::class.java),
                 PendingIntent.FLAG_IMMUTABLE,
             )
-            val text = "DoomScroll Guard was switched off, so feeds aren't being watched. Tap to turn it back on."
+            val text = "Doom Breaker was switched off, so feeds aren't being watched. Tap to turn it back on."
             val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Protection is off")

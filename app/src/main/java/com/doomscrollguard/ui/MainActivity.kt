@@ -127,7 +127,7 @@ private fun HomeScreen(app: DoomScrollApp, settings: AppSettings) {
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("DoomScroll Guard", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text("Doom Breaker", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
 
         StatusCard(enabled = serviceEnabled, onEnable = { openAccessibilitySettings(context) })
         if (!serviceEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
