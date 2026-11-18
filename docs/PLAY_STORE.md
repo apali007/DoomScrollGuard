@@ -14,10 +14,9 @@ raises the rule every year (usually by 31 August); bump `targetSdk` when Play Co
 ---
 
 ## 1. Before you start
-- [ ] Google Play developer account (one-time $25): https://play.google.com/console
-- [ ] Host the privacy policy at a public URL. Easiest option: paste `docs/PRIVACY_POLICY.md`
-      into a Google Sites or Notion public page (GitHub Pages needs a public repo or a paid plan).
-- [ ] **Back up `release.jks` + `keystore.properties`.** Opt in to Play App Signing (recommended)
+- [x] Google Play developer account (one-time $25): https://play.google.com/console (personal account; identity verification in progress)
+- [x] Privacy policy hosted at https://sites.google.com/view/doombreakerprivacy/home (Google Sites, owned by the developer account). Keep it in sync with `docs/PRIVACY_POLICY.md`.
+- [x] **Back up `release.jks` + `keystore.properties`.** (Done: copy in the owner's Google Drive.) Opt in to Play App Signing (recommended)
       so Google holds the app-signing key and yours becomes the upload key.
 
 ## 2. Store listing
@@ -72,7 +71,7 @@ raises the rule every year (usually by 31 August); bump `targetSdk` when Play Co
 
 ## 3. App content
 
-**Privacy policy URL:** _(your hosted URL)_
+**Privacy policy URL:** https://sites.google.com/view/doombreakerprivacy/home
 
 **Ads:** No ads.
 
