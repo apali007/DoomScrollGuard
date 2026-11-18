@@ -1,4 +1,4 @@
-# DoomScroll Guard for iOS: build spec
+# Doom Breaker for iOS: build spec
 
 This repo is the **Android** app (Kotlin). It's the reference for *what* the iOS app should do,
 not code to port. This document says what to build on iOS, what to adapt, and what to drop
@@ -129,7 +129,7 @@ Legend: ✅ same as Android · 🔁 adapt · ❌ drop
 - **Never mind, close it:** goes home.
 
 **iOS:** use a **Shortcuts personal automation**, the approach used by apps like *one sec*:
-- The user creates an automation "When {App} is opened → run *DoomScroll Guard: Check in*", an
+- The user creates an automation "When {App} is opened → run *Doom Breaker: Check in*", an
   App Intent your app provides. Guide them through it step by step in onboarding, with
   screenshots.
 - The intent opens your app on the question screen.
@@ -268,14 +268,19 @@ Default **no apps selected**. Users choose their own; don't pre-select Instagram
 
 | Token | Value | Used for |
 |---|---|---|
-| Calm | `#5B8DEF` | primary, breathing circle |
-| CalmDeep | `#0E1726` | full-screen backgrounds, shield background |
-| Leaf | `#3DBE8B` | "Leave" buttons, within-goal |
+Theme: **"touch grass"**, meadow greens on a deep forest background.
+
+| Token | Value | Used for |
+|---|---|---|
+| Grass | `#6CC47C` | highlights on dark backgrounds, breathing circle, dark-mode primary |
+| Leaf | `#2A8040` | buttons ("Leave", "Continue"), within-goal, light-mode primary |
+| Forest | `#0E1D14` | full-screen backgrounds, shield background, dark-mode background |
+| Meadow | `#F4F9F1` | light-mode background |
 | OverGoal | `#E5735C` | over-goal warnings |
 
 Tone: calm, warm and **never shaming**. The user is always in control; the app adds a moment of
-thought, not punishment. The icon is in `app/src/main/res/drawable/ic_launcher_foreground.xml`:
-a phone with a feed and a green pause badge.
+thought, not punishment. The icon is a tuft of grass in the sun under a blue sky: `docs/store/icon-512.png` (use it
+for the App Store icon), drawn from `app/src/main/res/drawable/ic_launcher_*.xml`.
 
 ---
 

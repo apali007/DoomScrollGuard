@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Monochrome pause symbol for the status bar. -->
+<!-- Monochrome grass tuft for the status bar. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -7,5 +7,5 @@
     android:viewportHeight="24">
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M12,2A10,10 0,1 0,22 12,10 10,0 0,0 12,2ZM10.5,16h-2V8h2ZM15.5,16h-2V8h2Z" />
+        android:pathData="M3,21 Q3,15 1.5,11 Q5.5,14.5 6.5,20Z M6.5,20 Q8,11 6.5,4 Q11,10 10.5,20Z M10.5,20 Q12.5,9 16,2 Q16,11 14,20Z M14,20 Q16.5,13 21,10 Q18.5,15 18,20Z M1,22 Q12,19 23,22 V23 H1Z" />
 </vector>

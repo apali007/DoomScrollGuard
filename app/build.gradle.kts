@@ -21,8 +21,8 @@ android {
         applicationId = "com.doomscrollguard"
         minSdk = 26
         targetSdk = 36
-        versionCode = 13
-        versionName = "1.5.0"
+        versionCode = 15
+        versionName = "1.6.0"
     }
 
     signingConfigs {

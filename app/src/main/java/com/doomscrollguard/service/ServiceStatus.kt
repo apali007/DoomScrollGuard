@@ -8,7 +8,7 @@ import android.provider.Settings
 
 object ServiceStatus {
 
-    /** True if the user has DoomScroll Guard switched on in Accessibility settings. */
+    /** True if the user has Doom Breaker switched on in Accessibility settings. */
     fun isEnabled(context: Context): Boolean {
         val expected = ComponentName(context, DoomScrollService::class.java)
         val enabled = Settings.Secure.getString(

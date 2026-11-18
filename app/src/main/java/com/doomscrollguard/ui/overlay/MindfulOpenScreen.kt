@@ -26,7 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.doomscrollguard.ui.theme.CalmDeep
+import com.doomscrollguard.ui.theme.Forest
 import com.doomscrollguard.ui.theme.Leaf
 
 enum class MindfulChoice {
@@ -56,7 +56,7 @@ fun MindfulOpenScreen(appLabel: String, onChoice: (MindfulChoice) -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(CalmDeep, RoundedCornerShape(24.dp))
+                .background(Forest, RoundedCornerShape(24.dp))
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(10.dp),

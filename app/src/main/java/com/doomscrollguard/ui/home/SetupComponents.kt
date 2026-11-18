@@ -39,7 +39,7 @@ fun StatusCard(enabled: Boolean, onEnable: () -> Unit) {
             )
             Text(
                 if (enabled) "Open a feed app and scroll. We'll step in when it's been too long."
-                else "Turn on DoomScroll Guard in Accessibility settings so it can notice endless scrolling.",
+                else "Turn on Doom Breaker in Accessibility settings so it can notice endless scrolling.",
                 style = MaterialTheme.typography.bodyMedium,
             )
             if (!enabled) {
@@ -70,9 +70,9 @@ fun BatteryHelpCard() {
     val context = LocalContext.current
     SectionCard(title = "Keep protection running") {
         Text(
-            "Your phone may switch DoomScroll Guard off to save battery. To prevent this:\n" +
+            "Your phone may switch Doom Breaker off to save battery. To prevent this:\n" +
                 "1. Tap \"Battery settings\"\n" +
-                "2. Find DoomScroll Guard\n" +
+                "2. Find Doom Breaker\n" +
                 "3. Choose \"Unrestricted\" or \"Don't optimize\"",
             style = MaterialTheme.typography.bodyMedium,
         )

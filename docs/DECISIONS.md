@@ -1,6 +1,6 @@
 # Product decisions
 
-Why DoomScroll Guard works the way it does. Read this before changing behaviour or building
+Why Doom Breaker works the way it does. Read this before changing behaviour or building
 another platform, because several "obvious" improvements were tried or considered and rejected.
 
 ## Goal
@@ -58,6 +58,21 @@ Hardcore's swipe trigger was raised from 20 to 45 so the nudge doesn't fire long
 - **Bedtime mode** (2× faster at night): removed at the user's request, for simplicity.
 - **Default-watched apps** (Instagram/YouTube/Facebook pre-selected): removed. Users pick
   their own apps; the user doesn't use those apps, and pre-selection confused the list.
+
+### Name: Doom Breaker (November 2026)
+Renamed from "DoomScroll Guard", which sounded like many other apps. Candidates were checked
+for existing apps first: Doomstop, Undoom(ed), Unscroll and Speed Bump are already taken by
+anti-doomscrolling apps, and Doomtok/Doombook/Doomgram would imitate TikTok, Facebook and
+Instagram (Play policy and trademark risk). "Doom Breaker" was free (the only match is an
+unrelated PC game) and ties in with breaks. Store name: **Doom Breaker: Stop Doomscrolling**.
+Internal identifiers keep the old name (package `com.doomscrollguard`, repo `DoomScrollGuard`,
+iOS bundle IDs), because the package can never change after the first Play upload and users
+never see it.
+
+### Look: "touch grass" (November 2026)
+The logo is a tuft of grass in the sun, and the theme uses meadow greens on a deep forest
+background, replacing the earlier blue. It's a friendly nod to "go touch grass": the goal is to
+get people off the feed and back to real life, which fits the name Doom Breaker and the breaks.
 
 ### Smaller choices
 - **Nudge card in the centre** of the screen (user preference), not the top.

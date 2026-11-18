@@ -95,7 +95,7 @@ fun OnboardingScreen(settings: Settings, repo: SettingsRepository) {
                     Title("Take your time back")
                     Body(
                         "Endless feeds are designed to keep you scrolling. Minutes turn into hours " +
-                            "without you noticing.\n\nDoomScroll Guard notices when you've been scrolling " +
+                            "without you noticing.\n\nDoom Breaker notices when you've been scrolling " +
                             "too long and gently helps you stop.",
                     )
                 }
@@ -111,7 +111,7 @@ fun OnboardingScreen(settings: Settings, repo: SettingsRepository) {
                     BigEmoji("🔒")
                     Title("Your privacy")
                     Body(
-                        "DoomScroll Guard uses Android's Accessibility service to:\n\n" +
+                        "Doom Breaker uses Android's Accessibility service to:\n\n" +
                             "• See which app is open\n" +
                             "• Notice when you scroll in the apps you choose\n" +
                             "• Show reminders on top of those apps\n\n" +
@@ -128,7 +128,7 @@ fun OnboardingScreen(settings: Settings, repo: SettingsRepository) {
                 }
                 Step.ENABLE -> {
                     Title("Turn on protection")
-                    Body("In the next screen, find DoomScroll Guard and switch it on, then come back here.")
+                    Body("In the next screen, find Doom Breaker and switch it on, then come back here.")
                     StatusCard(enabled = serviceEnabled, onEnable = { openAccessibilitySettings(context) })
                     if (!serviceEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         RestrictedSettingsHelp()
@@ -140,7 +140,7 @@ fun OnboardingScreen(settings: Settings, repo: SettingsRepository) {
                 Step.FINISH -> {
                     BigEmoji("🎯")
                     Title("Last step")
-                    Body("How firm should DoomScroll Guard be? You can change this anytime.")
+                    Body("How firm should Doom Breaker be? You can change this anytime.")
                     StrictnessSection(settings.strictness) { scope.launch { repo.setStrictness(it) } }
                     GoalSection(settings.dailyGoalMinutes) { scope.launch { repo.setDailyGoal(it) } }
                     Body("Each evening at 9 PM you'll get a short recap of your day. You can turn it off anytime.")

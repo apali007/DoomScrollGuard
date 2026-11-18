@@ -43,8 +43,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.doomscrollguard.ui.theme.Calm
-import com.doomscrollguard.ui.theme.CalmDeep
+import com.doomscrollguard.ui.theme.Grass
+import com.doomscrollguard.ui.theme.Forest
 import com.doomscrollguard.ui.theme.Leaf
 import kotlinx.coroutines.delay
 
@@ -74,7 +74,7 @@ fun NudgeCard(copy: InterventionCopy, onDismiss: () -> Unit) {
             .fillMaxWidth()
             .padding(16.dp),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = CalmDeep),
+        colors = CardDefaults.cardColors(containerColor = Forest),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
     ) {
         Row(
@@ -108,7 +108,7 @@ fun NudgeCard(copy: InterventionCopy, onDismiss: () -> Unit) {
                 }
             }
             TextButton(onClick = onDismiss) {
-                Text("OK", color = Calm)
+                Text("OK", color = Grass)
             }
         }
     }
@@ -155,7 +155,7 @@ fun PauseScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CalmDeep.copy(alpha = 0.97f))
+            .background(Forest.copy(alpha = 0.97f))
             // Swallow touches so the feed underneath can't be scrolled.
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
@@ -183,13 +183,13 @@ fun PauseScreen(
                     modifier = Modifier
                         .size(200.dp)
                         .scale(scale)
-                        .background(Calm.copy(alpha = 0.25f), CircleShape),
+                        .background(Grass.copy(alpha = 0.25f), CircleShape),
                 )
                 Box(
                     modifier = Modifier
                         .size(120.dp)
                         .scale(scale)
-                        .background(Calm.copy(alpha = 0.5f), CircleShape),
+                        .background(Grass.copy(alpha = 0.5f), CircleShape),
                 )
                 Text(
                     if (inhaling) "in" else "out",

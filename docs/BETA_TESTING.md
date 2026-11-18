@@ -1,6 +1,6 @@
 # Beta testing with friends
 
-The fastest way to learn whether DoomScroll Guard actually helps is to have real people use it
+The fastest way to learn whether Doom Breaker actually helps is to have real people use it
 for a week.
 
 ## Option A: share the APK directly (today, no Play account needed)
@@ -10,9 +10,9 @@ for a week.
    email, etc.
 3. Send them these steps:
 
-> **Installing DoomScroll Guard**
+> **Installing Doom Breaker**
 > 1. Open the APK on your Android phone. If asked, allow installing from this source.
-> 2. Open DoomScroll Guard and follow the setup.
+> 2. Open Doom Breaker and follow the setup.
 > 3. When you reach "Turn on protection": if the switch in Accessibility settings is greyed out,
 >    go back, tap **Open app info → ⋮ (top right) → Allow restricted settings**, then try again.
 > 4. Samsung / Xiaomi / OnePlus etc.: follow the "Keep protection running" card so your phone
