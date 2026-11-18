@@ -15,3 +15,4 @@ keystore.properties
 *.apk
 *.aab
 .kotlin/
+docs/store/screenshots/originals/

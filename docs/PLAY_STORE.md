@@ -65,9 +65,10 @@ raises the rule every year (usually by 31 August); bump `targetSdk` when Play Co
 **Graphics checklist**
 - [x] App icon 512×512 PNG: `docs/store/icon-512.png` (the grass logo)
 - [x] Feature graphic 1024×500 PNG: `docs/store/feature-graphic-1024x500.png` (source: `feature-graphic.svg`; render at exactly 1024×500, e.g. with headless Chrome)
-- [ ] 2–8 phone screenshots. Suggested: onboarding welcome, home stats, nudge card over a feed,
-      breathing pause, intention screen, break countdown, strictness levels. (Home → **How it works** →
-      **See it** shows each reminder screen without needing a real feed.)
+- [x] Phone screenshots (6, 1080×1920 with captions): `docs/store/screenshots/play/01–06.png`.
+      Upload them in this order. To add more later (the nudge, pause and break "See it"
+      previews are the strongest), drop raw screenshots in `screenshots/originals/` (gitignored)
+      and frame them the same way.
 
 ## 3. App content
 
