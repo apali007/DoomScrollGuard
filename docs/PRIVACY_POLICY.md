@@ -52,4 +52,4 @@ If this policy changes, the new version will be published at this same address w
 
 ## Contact
 
-Questions? Email: **[your-email@example.com]**
+Questions? Email: **yeti.researchlabs@gmail.com**

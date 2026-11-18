@@ -16,7 +16,7 @@ raises the rule every year (usually by 31 August); bump `targetSdk` when Play Co
 ## 1. Before you start
 - [ ] Google Play developer account (one-time $25): https://play.google.com/console
 - [ ] Host the privacy policy at a public URL. Easiest option: paste `docs/PRIVACY_POLICY.md`
-      into a GitHub Pages site, Google Sites page, or Notion public page. Fill in your contact email first.
+      into a Google Sites or Notion public page (GitHub Pages needs a public repo or a paid plan).
 - [ ] **Back up `release.jks` + `keystore.properties`.** Opt in to Play App Signing (recommended)
       so Google holds the app-signing key and yours becomes the upload key.
 
