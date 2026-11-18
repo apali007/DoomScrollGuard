@@ -1,9 +1,17 @@
 package com.doomscrollguard.ui.home
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -20,22 +28,57 @@ import com.doomscrollguard.ui.overlay.formatDuration
 /** Which screen the user wants to see from the "How it works" list. */
 enum class HowItWorksPreview { OPENING_QUESTION, NUDGE, PAUSE, INTENTION, BREAK }
 
+/** Small card on the home screen that opens the full "How it works" page. */
+@Composable
+fun HowItWorksLink(settings: Settings, onOpen: () -> Unit) {
+    val rules = settings.strictness
+    Card(onClick = onOpen, modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("💡", fontSize = 26.sp)
+            Column(
+                Modifier
+                    .weight(1f)
+                    .padding(start = 12.dp),
+            ) {
+                Text("How it works", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(
+                    "When each reminder appears on ${rules.emoji} ${rules.label}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Text("›", fontSize = 28.sp, color = MaterialTheme.colorScheme.primary)
+        }
+    }
+}
+
 /**
- * Explains every reminder and exactly when it appears for the chosen
- * strictness level.
+ * Full page explaining every reminder and exactly when it appears for the
+ * chosen strictness level.
  */
 @Composable
-fun HowItWorksSection(
+fun HowItWorksScreen(
     settings: Settings,
     onPreview: (HowItWorksPreview) -> Unit,
+    onBack: () -> Unit,
 ) {
+    BackHandler(onBack = onBack)
     val rules = settings.strictness
     val now = rules.thresholds
     val nudge = formatDuration(now.nudgeAfterMs)
     val gap = formatDuration(now.escalationGapMs)
     val reset = formatDuration(now.sessionResetMs)
 
-    SectionCard(title = "How it works") {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .safeDrawingPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        TextButton(onClick = onBack) { Text("← Back") }
+        Text("How it works", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(
             "You're on ${rules.emoji} ${rules.label}. Only time in your watched apps counts. " +
                 "Reminders get stronger the longer you keep scrolling.",
@@ -51,6 +94,7 @@ fun HowItWorksSection(
                 "\"Never mind\" takes you home.",
             onSee = { onPreview(HowItWorksPreview.OPENING_QUESTION) },
         )
+        HorizontalDivider()
         Step(
             emoji = "⏳",
             title = "1. Nudge",
@@ -58,6 +102,7 @@ fun HowItWorksSection(
             body = "A card in the middle of the screen shows how long you've been scrolling. It disappears on its own.",
             onSee = { onPreview(HowItWorksPreview.NUDGE) },
         )
+        HorizontalDivider()
         Step(
             emoji = "🫁",
             title = "2. Pause",
@@ -66,6 +111,7 @@ fun HowItWorksSection(
                 "or tap \"Leave\" to go home.",
             onSee = { onPreview(HowItWorksPreview.PAUSE) },
         )
+        HorizontalDivider()
         Step(
             emoji = "🧭",
             title = "3. Intention",
@@ -74,6 +120,7 @@ fun HowItWorksSection(
                 "\"Continue\" unlocks after ${rules.intentionLockSeconds} seconds.",
             onSee = { onPreview(HowItWorksPreview.INTENTION) },
         )
+        HorizontalDivider()
         Step(
             emoji = "🌿",
             title = "Break",
@@ -85,6 +132,7 @@ fun HowItWorksSection(
                     ?: "On ${rules.label} it can't be skipped."),
             onSee = { onPreview(HowItWorksPreview.BREAK) },
         )
+        HorizontalDivider()
         Step(
             emoji = "🎯",
             title = "Past your daily goal",
@@ -93,6 +141,7 @@ fun HowItWorksSection(
             onSee = null,
         )
 
+        HorizontalDivider()
         Text(
             "Leave your watched apps for $reset and everything starts over. Come back sooner and it " +
                 "picks up where it left off. Locking your phone stops the clock.",

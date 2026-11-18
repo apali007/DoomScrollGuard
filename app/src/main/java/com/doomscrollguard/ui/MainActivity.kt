@@ -25,6 +25,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -43,7 +44,8 @@ import com.doomscrollguard.ui.home.AppsSection
 import com.doomscrollguard.ui.home.BatteryHelpCard
 import com.doomscrollguard.ui.home.GoalSection
 import com.doomscrollguard.ui.home.HowItWorksPreview
-import com.doomscrollguard.ui.home.HowItWorksSection
+import com.doomscrollguard.ui.home.HowItWorksLink
+import com.doomscrollguard.ui.home.HowItWorksScreen
 import com.doomscrollguard.ui.home.RestrictedSettingsHelp
 import com.doomscrollguard.ui.home.SectionCard
 import com.doomscrollguard.ui.home.StatsSection
@@ -105,6 +107,17 @@ private fun HomeScreen(app: DoomScrollApp, settings: AppSettings) {
     ) { granted -> canNotify = granted }
 
     var preview by remember { mutableStateOf<HowItWorksPreview?>(null) }
+    var showHowItWorks by rememberSaveable { mutableStateOf(false) }
+
+    if (showHowItWorks) {
+        HowItWorksScreen(
+            settings = settings,
+            onPreview = { preview = it },
+            onBack = { showHowItWorks = false },
+        )
+        preview?.let { PreviewDialog(it, settings.strictness, onDismiss = { preview = null }) }
+        return
+    }
 
     Column(
         modifier = Modifier
@@ -128,10 +141,7 @@ private fun HomeScreen(app: DoomScrollApp, settings: AppSettings) {
 
         StrictnessSection(settings.strictness) { scope.launch { repo.setStrictness(it) } }
 
-        HowItWorksSection(
-            settings = settings,
-            onPreview = { preview = it },
-        )
+        HowItWorksLink(settings, onOpen = { showHowItWorks = true })
 
         GoalSection(settings.dailyGoalMinutes) { scope.launch { repo.setDailyGoal(it) } }
 
