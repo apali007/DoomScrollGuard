@@ -14,3 +14,4 @@ release.jks
 keystore.properties
 *.apk
 *.aab
+.kotlin/
