@@ -30,7 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.doomscrollguard.ui.theme.CalmDeep
+import com.doomscrollguard.ui.theme.Forest
 import com.doomscrollguard.ui.theme.Leaf
 import kotlinx.coroutines.delay
 import java.util.Locale
@@ -64,7 +64,7 @@ fun BreakScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CalmDeep)
+            .background(Forest)
             // Swallow touches so the app underneath can't be used.
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },

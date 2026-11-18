@@ -70,7 +70,8 @@ reliably. Say in each PR which device and iOS version it was tested on.
    in the PR and update `../docs/IOS_SPEC.md` (and `../docs/DECISIONS.md` if it's a product
    decision).
 6. **Same wording and tone** as Android: copy text from `../app/src/main/java/com/doomscrollguard/ui/overlay/*.kt`.
-   Colours: Calm `#5B8DEF`, CalmDeep `#0E1726`, Leaf `#3DBE8B`, OverGoal `#E5735C`.
+   Colours ("touch grass" theme): Grass `#6CC47C`, Leaf `#2A8040`, Forest `#0E1D14`,
+   Meadow `#F4F9F1`, OverGoal `#E5735C` (see IOS_SPEC section 7). Icon: `../docs/store/icon-512.png`.
 7. **Don't modify Android code** (`../app/`) from iOS work. Open an issue instead.
 8. **Never commit** certificates, provisioning profiles, `.p12` / `.mobileprovision` files or
    anything from `xcuserdata/`.

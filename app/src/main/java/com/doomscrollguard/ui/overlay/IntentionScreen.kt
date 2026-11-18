@@ -33,8 +33,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.doomscrollguard.ui.theme.Calm
-import com.doomscrollguard.ui.theme.CalmDeep
+import com.doomscrollguard.ui.theme.Grass
+import com.doomscrollguard.ui.theme.Forest
 import com.doomscrollguard.ui.theme.Leaf
 import kotlinx.coroutines.delay
 
@@ -72,7 +72,7 @@ fun IntentionScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CalmDeep)
+            .background(Forest)
             .systemBarsPadding()
             .imePadding(),
         contentAlignment = Alignment.Center,
@@ -126,9 +126,9 @@ fun IntentionScreen(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.White,
                     unfocusedTextColor = Color.White,
-                    focusedBorderColor = Calm,
+                    focusedBorderColor = Grass,
                     unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
-                    cursorColor = Calm,
+                    cursorColor = Grass,
                     focusedPlaceholderColor = Color.White.copy(alpha = 0.35f),
                     unfocusedPlaceholderColor = Color.White.copy(alpha = 0.35f),
                 ),

@@ -69,6 +69,11 @@ Internal identifiers keep the old name (package `com.doomscrollguard`, repo `Doo
 iOS bundle IDs), because the package can never change after the first Play upload and users
 never see it.
 
+### Look: "touch grass" (November 2026)
+The logo is a tuft of grass in the sun, and the theme uses meadow greens on a deep forest
+background, replacing the earlier blue. It's a friendly nod to "go touch grass": the goal is to
+get people off the feed and back to real life, which fits the name Doom Breaker and the breaks.
+
 ### Smaller choices
 - **Nudge card in the centre** of the screen (user preference), not the top.
 - **"How it works" section** with live timings for the current level and a "See it" preview

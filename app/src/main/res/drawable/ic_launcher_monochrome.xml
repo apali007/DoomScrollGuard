@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Single-colour version for Android 13+ themed icons. -->
+<!-- Single-colour version for Android 13+ themed icons. Blades stay inside the 66dp adaptive-icon safe zone. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
@@ -7,13 +7,29 @@
     android:viewportHeight="108">
     <path
         android:fillColor="#FFFFFF"
-        android:fillType="evenOdd"
-        android:pathData="M39,26h22a6,6 0,0 1,6 6v44a6,6 0,0 1,-6 6h-22a6,6 0,0 1,-6 -6v-44a6,6 0,0 1,6 -6zM38,32v44a1,1 0,0 0,1 1h22a1,1 0,0 0,1 -1v-44a1,1 0,0 0,-1 -1h-22a1,1 0,0 0,-1 1z" />
+        android:pathData="M71,37m-8,0a8,8 0,1 1,16 0a8,8 0,1 1,-16 0" />
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M42,36h16v9h-16zM42,49h16v9h-16zM42,62h10v3h-10z" />
+        android:pathData="M25,82 Q25,72 22,62 Q31,70 32,81Z" />
     <path
         android:fillColor="#FFFFFF"
-        android:fillType="evenOdd"
-        android:pathData="M68,70m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0zM63.5,64v12h3.5v-12zM69,64v12h3.5v-12z" />
+        android:pathData="M31,81 Q33,64 30,47 Q40,62 39,80Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,80 Q42,57 40,36 Q49,55 47,79Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M45,79 Q50,51 55,29 Q58,53 54,78Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M52,78 Q58,55 67,43 Q63,61 61,78Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M59,78 Q65,63 76,54 Q70,67 68,79Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M66,79 Q73,71 84,66 Q77,74 75,80Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M0,84 Q54,74 108,84 V108 H0Z" />
 </vector>

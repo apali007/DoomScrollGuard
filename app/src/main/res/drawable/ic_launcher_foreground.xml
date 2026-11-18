@@ -1,31 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  A phone showing a feed, with a green "pause" badge: the app interrupts the scroll.
-  Everything sits inside the 66dp adaptive-icon safe zone (21..87).
--->
+<!-- "Touch grass": a tuft of grass in the sun. Blades stay inside the 66dp adaptive-icon safe zone. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Phone outline -->
     <path
-        android:fillColor="#FFFFFF"
-        android:fillType="evenOdd"
-        android:pathData="M39,26h22a6,6 0,0 1,6 6v44a6,6 0,0 1,-6 6h-22a6,6 0,0 1,-6 -6v-44a6,6 0,0 1,6 -6zM38,32v44a1,1 0,0 0,1 1h22a1,1 0,0 0,1 -1v-44a1,1 0,0 0,-1 -1h-22a1,1 0,0 0,-1 1z" />
-    <!-- Feed rows -->
+        android:fillColor="#FFD25E"
+        android:pathData="M71,37m-8,0a8,8 0,1 1,16 0a8,8 0,1 1,-16 0" />
     <path
-        android:fillColor="#5B8DEF"
-        android:pathData="M42,36h16v9h-16zM42,49h16v9h-16zM42,62h10v3h-10z" />
-    <!-- Badge cut-out ring in the background colour -->
+        android:fillColor="#1F6B33"
+        android:pathData="M30,82 Q30,66 27,54 Q36,66 37,81Z" />
     <path
-        android:fillColor="#0E1726"
-        android:pathData="M68,70m-15,0a15,15 0,1 1,30 0a15,15 0,1 1,-30 0" />
-    <!-- Pause badge -->
+        android:fillColor="#1F6B33"
+        android:pathData="M47,80 Q50,58 47,40 Q56,58 55,80Z" />
     <path
-        android:fillColor="#3DBE8B"
-        android:pathData="M68,70m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0" />
+        android:fillColor="#1F6B33"
+        android:pathData="M62,80 Q68,62 80,56 Q72,68 70,81Z" />
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M63.5,64h3.5v12h-3.5zM69,64h3.5v12h-3.5z" />
+        android:fillColor="#3FA052"
+        android:pathData="M25,82 Q25,72 22,62 Q31,70 32,81Z" />
+    <path
+        android:fillColor="#6CC47C"
+        android:pathData="M31,81 Q33,64 30,47 Q40,62 39,80Z" />
+    <path
+        android:fillColor="#2A8040"
+        android:pathData="M38,80 Q42,57 40,36 Q49,55 47,79Z" />
+    <path
+        android:fillColor="#3FA052"
+        android:pathData="M45,79 Q50,51 55,29 Q58,53 54,78Z" />
+    <path
+        android:fillColor="#6CC47C"
+        android:pathData="M52,78 Q58,55 67,43 Q63,61 61,78Z" />
+    <path
+        android:fillColor="#2A8040"
+        android:pathData="M59,78 Q65,63 76,54 Q70,67 68,79Z" />
+    <path
+        android:fillColor="#3FA052"
+        android:pathData="M66,79 Q73,71 84,66 Q77,74 75,80Z" />
+    <path
+        android:fillColor="#2A8040"
+        android:pathData="M0,84 Q54,74 108,84 V108 H0Z" />
 </vector>

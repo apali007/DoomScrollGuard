@@ -63,8 +63,7 @@ raises the rule every year (usually by 31 August); bump `targetSdk` when Play Co
 **Tags:** digital wellbeing, screen time, focus
 
 **Graphics checklist**
-- [ ] App icon 512×512 PNG (export from the adaptive icon in Android Studio:
-      right-click `res` → New → Image Asset, or screenshot the launcher icon)
+- [x] App icon 512×512 PNG: `docs/store/icon-512.png` (the grass logo)
 - [ ] Feature graphic 1024×500 PNG
 - [ ] 2–8 phone screenshots. Suggested: onboarding welcome, home stats, nudge card over a feed,
       breathing pause, intention screen, break countdown, strictness levels. (Home → **How it works** →
